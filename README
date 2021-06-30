@@ -1,0 +1,8 @@
+This is a multiplayer card game called "TheMessage" using Unity(C#) and PhotonNetwork.
+
+Each Player begins with 3 cards, and draws 2 cards when his/her turn starts. To win the game, he/her shall collect 3 cards(message) of the same color.
+
+At the beginning of the turn, player who start will choose a card to pass the message(hidden), other players can choose to accept or pass the card to other players.
+During the passing state, players can choose to intercept, lock someone(locked player must accept the coming message), block someone(blocked player cannot accept the coming message)
+
+Player who receives 3 black cards dies. Player who receive 3 red/blue cards wins.
