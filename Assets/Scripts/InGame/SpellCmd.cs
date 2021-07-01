@@ -51,7 +51,7 @@ public class SpellCmd : MonoBehaviourPunCallbacks
     {
         Player _player = Gateway.GetPlayerBySeq(toPlayer);
         setPlayerDebuff(_player, "redirected", true, "ת");
-        if (PhotonNetwork.IsMasterClient) Gateway.raiseCertainEvent(Gateway.SendCardCode(), new object[] { toPlayer, Gateway.currentCardId });
+        if (PhotonNetwork.IsMasterClient) Gateway.raiseCertainEvent(Gateway.SendCardCode(), new object[] { castPlayer, toPlayer, Gateway.currentCardId });
         StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, toPlayer, "Redirect")));
     }
 
@@ -67,9 +67,7 @@ public class SpellCmd : MonoBehaviourPunCallbacks
 
     private void SpellBurn(int fromPlayer, int cardId)//Num[7] ShaoHui
     {
-        Player _player = Gateway.GetPlayerBySeq(fromPlayer);
         StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, -1, "Burn")));
-        Gateway.deleteMessage(_player, cardId);
     }
 
     private void SpellChange(int fromPlayer)//Num[8] DiaoBao

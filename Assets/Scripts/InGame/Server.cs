@@ -17,6 +17,9 @@ public class Server : MonoBehaviourPunCallbacks
     public Hashtable playerSequencesByName;
     public Hashtable playerPositions;
 
+    private List<int> openDeck;
+    private List<int> closeDeck;
+
     public int playersCount;
     public int turnCount;
 
@@ -30,11 +33,23 @@ public class Server : MonoBehaviourPunCallbacks
     protected const int DropCardEventCode = 7;
     protected const int OpenCardEventCode = 8;
 
+    protected const int SpellLock = 0;
+    protected const int SpellAway = 1;
+    protected const int SpellHelp = 2;
+    protected const int SpellRedirect = 3;
+    protected const int SpellGamble = 4;
+    protected const int SpellIntercept = 5;
+    protected const int SpellTest = 6;
+    protected const int SpellBurn = 7;
+    protected const int SpellChange = 8;
+
     protected virtual void Awake()
     {
         playersCount = PhotonNetwork.CurrentRoom.PlayerCount;
         turnCount = 0;
         Deck = new Deck().getDeck(); playerSequences = new Hashtable();
+        openDeck = new List<int>();
+        closeDeck = new List<int>();
         playerSequencesByName = new Hashtable(); playerPositions = new Hashtable();
         PhotonNetwork.AddCallbackTarget(this);//receive eventscode
         if(PhotonNetwork.IsMasterClient) serverDeck = new SystemDeck().getDeck();
@@ -172,26 +187,28 @@ public class Server : MonoBehaviourPunCallbacks
         raiseCertainEvent(SuccessReceiveEventCode, new object[] { (int)playerSequencesByName[PhotonNetwork.LocalPlayer.NickName], newcardId });
     }
 
-    //Must be able to cast spell card. Ex: 1) Not my turn. 2) Passing card is here
+    //Spell Card Rules: Must be able to cast spell card.
+    //Ex: 1) Not my turn. 2) Passing card is not in front of me. 3) No currently passing card. 4)Not allowed if I am the passer
     public bool isPlayerCastAllowed(int type, int subTurn, int currentCardId)
     {
-        if(type == 2 || type == 4 || type == 6)
+        if(type == SpellHelp || type == SpellGamble || type == SpellTest) 
         {
-            if (!((Player)playerSequences[$"{turnCount}"]).IsLocal) return false;
+            if (!((Player)playerSequences[$"{turnCount}"]).IsLocal) return false;//(1)
         }
-        if(type==3 && subTurn!= (int)playerSequencesByName[$"{PhotonNetwork.LocalPlayer.NickName}"]) return false;//必须到自己面前才能使用 转移
-        if (type == 5)// return false if there is no sending message card
+        if(type==SpellRedirect && subTurn!= (int)playerSequencesByName[$"{PhotonNetwork.LocalPlayer.NickName}"]) return false;//(2)
+        if (type == SpellIntercept || type == SpellRedirect)
         {
-            if (currentCardId == -1) return false;
-            return !(((Player)playerSequences[$"{turnCount}"]).IsLocal);
+            if (currentCardId == -1) return false;//(3)
+            if (type == SpellIntercept) return !(((Player)playerSequences[$"{turnCount}"]).IsLocal);//(4)
         }
         return true;
     }
 
-    //check if spell card can be casted to this player
+    //Is casted player allowed
+    //Ex: 1) Can not cast to Messag Passer
     public bool isCastedPlayerAllowed(int type, int player,int subTurn)
     {
-        if (type == 1 && player == turnCount) return false;//Redirect cannot be casted to Send-card-player of the turn
+        if (type == 1 && player == turnCount) return false;//(1)
         return true;
     }
 
@@ -234,6 +251,32 @@ public class Server : MonoBehaviourPunCallbacks
         table["playerRedMessage"] = redColor - Deck[newcardId].red;
         table["playerBlackMessage"] = blackColor - Deck[newcardId].black;
         player.SetCustomProperties(table);
+    }
+
+    protected void AddCardToTrash(int opendeck,int cardId)
+    {
+        if (opendeck==1) openDeck.Add(cardId);
+        else closeDeck.Add(cardId);
+    }
+
+    protected void RemoveCardFromTrash(int opendeck, int cardId)
+    {
+        if (opendeck==1)
+        {
+            int index = openDeck.FindIndex(x => x == cardId);
+            if(index !=-1) openDeck.RemoveAt(index);
+        }
+        else
+        {
+            int index = closeDeck.FindIndex(x => x == cardId);
+            if (index != -1) closeDeck.RemoveAt(index);
+        }
+    }
+
+    protected int GetTrashCardCountByType(int opendeck)
+    {
+        if (opendeck == 1) return openDeck.Count;
+        else return closeDeck.Count;
     }
 
     protected Hashtable getPlayerHashTable(Player player)

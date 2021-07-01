@@ -30,12 +30,13 @@ public class Animation : MonoBehaviourPunCallbacks
     // Update is called once per frame
     void Update()
     {
-        if (inGame.shouldAnimatePassingCard)
+        if (inGame.shouldAnimatePassingCard && !DraggerSystem.onDraggingCard)
         {
             passingCardLive.SetActive(true);
             passingCardLive.transform.position = Vector3.Lerp(passingCardLive.transform.position, inGame.passingCardPosition, 5 * Time.deltaTime);
         }
-        else if(!inGame.shouldAnimatePassingCard){
+        else if(!inGame.shouldAnimatePassingCard && !DraggerSystem.onDraggingCard)
+        {
             passingCardLive.SetActive(false);
         }
         if (inGame.shouldAnimateAssigningCard)
@@ -47,21 +48,6 @@ public class Animation : MonoBehaviourPunCallbacks
         {
             assigningCardLive.SetActive(false);
             assigningCardLive.transform.position = startingDeckPos;
-        }
-    }
-
-    public void drawCard(BaseEventData t_event)//0 -> drawCardEventCode
-    {
-        PointerEventData eventData = (PointerEventData)t_event;
-        if (eventData.button == PointerEventData.InputButton.Left)
-        {
-            object[] content = new object[] { Gateway.GetPlayerSequenceByName($"{PhotonNetwork.LocalPlayer.NickName}"), 1 };
-            Gateway.raiseCertainEvent(0, content);
-        }
-        else
-        {
-            object[] content = new object[] { Gateway.GetPlayerSequenceByName($"{PhotonNetwork.LocalPlayer.NickName}"), 1 , true};
-            Gateway.raiseCertainEvent(0, content);
         }
     }
 
@@ -80,5 +66,10 @@ public class Animation : MonoBehaviourPunCallbacks
     public void setOpenCard(bool shouldOpenCard)
     {
         alreadyOpenedCard = shouldOpenCard;
+    }
+
+    public void setPassingCardPositionToSendingPlayer(Vector3 originPosition)
+    {
+        passingCardLive.transform.position = originPosition;
     }
 }

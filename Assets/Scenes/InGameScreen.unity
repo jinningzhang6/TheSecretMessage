@@ -259,12 +259,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GameScene: {fileID: 33263942}
-  CardsDeckUI:
-  - {fileID: 1603773547}
-  - {fileID: 1785402758}
-  - {fileID: 1626528307}
-  - {fileID: 1406917013}
-  - {fileID: 144541281}
 --- !u!114 &17025370
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -531,8 +525,21 @@ MonoBehaviour:
   - {fileID: 98013992}
   - {fileID: 379367498}
   - {fileID: 685690212371044785}
-  endTurnButton: {fileID: 1266881400}
+  OpenTrashDeckUI:
+  - {fileID: 1603773547}
+  - {fileID: 1785402758}
+  - {fileID: 1626528307}
+  - {fileID: 1406917013}
+  - {fileID: 144541281}
+  CloseTrashDeckUI:
+  - {fileID: 278149302}
+  - {fileID: 1073512803}
+  - {fileID: 287039893}
+  - {fileID: 1097325263}
+  - {fileID: 1554617805}
+  burnCardWindow: {fileID: 1934418587}
   incomingManipulation: {fileID: 654951331}
+  endTurnButton: {fileID: 1266881400}
   useSpellButton: {fileID: 1783674468}
   cancelSpellButton: {fileID: 819127996}
   turnPrompt: {fileID: 1870924381}
@@ -540,7 +547,6 @@ MonoBehaviour:
   cardsLeftUI: {fileID: 15640764}
   reminderText: {fileID: 1277040469}
   openCard: {fileID: 1601503201}
-  burnCardWindow: {fileID: 1934418587}
   passingCardPosition: {x: 0, y: 0, z: 0}
   assigningCardPosition: {x: 0, y: 0, z: 0}
   shouldAnimatePassingCard: 0
@@ -1892,7 +1898,7 @@ GameObject:
   - component: {fileID: 324962992}
   - component: {fileID: 324962991}
   m_Layer: 0
-  m_Name: DeckCard4
+  m_Name: DeckCard3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3223,12 +3229,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GameScene: {fileID: 33263942}
-  CardsDeckUI:
-  - {fileID: 278149302}
-  - {fileID: 1073512803}
-  - {fileID: 287039893}
-  - {fileID: 1097325263}
-  - {fileID: 1554617805}
 --- !u!114 &724198289
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3665,8 +3665,8 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: InGame, Assembly-CSharp
+        - m_Target: {fileID: 33263955}
+          m_TargetAssemblyTypeName: PlayerCmd, Assembly-CSharp
           m_MethodName: ClickOnPassingCard
           m_Mode: 0
           m_Arguments:
@@ -4529,7 +4529,7 @@ GameObject:
   - component: {fileID: 1172649460}
   - component: {fileID: 1172649459}
   m_Layer: 0
-  m_Name: DeckCard2
+  m_Name: DeckCard1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6323,8 +6323,8 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 33263951}
-          m_TargetAssemblyTypeName: InGameAnimation, Assembly-CSharp
+        - m_Target: {fileID: 33263955}
+          m_TargetAssemblyTypeName: PlayerCmd, Assembly-CSharp
           m_MethodName: drawCard
           m_Mode: 0
           m_Arguments:
@@ -6798,8 +6798,8 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: InGame, Assembly-CSharp
+        - m_Target: {fileID: 33263955}
+          m_TargetAssemblyTypeName: PlayerCmd, Assembly-CSharp
           m_MethodName: onDropHandZone
           m_Mode: 0
           m_Arguments:
@@ -9240,7 +9240,7 @@ GameObject:
   - component: {fileID: 1889233345}
   - component: {fileID: 1889233344}
   m_Layer: 0
-  m_Name: DeckCard3
+  m_Name: DeckCard2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9518,7 +9518,7 @@ GameObject:
   - component: {fileID: 2043493360}
   - component: {fileID: 2043493359}
   m_Layer: 0
-  m_Name: DeckCard1
+  m_Name: DeckCard4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10319,7 +10319,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7293344848012523304, guid: bce6207cf314b6e43ad6355387ef7b53, type: 3}
       propertyPath: m_Name
-      value: DeckCard1
+      value: DeckCard4
       objectReference: {fileID: 0}
     - target: {fileID: 7293344848012523305, guid: bce6207cf314b6e43ad6355387ef7b53, type: 3}
       propertyPath: m_Pivot.x

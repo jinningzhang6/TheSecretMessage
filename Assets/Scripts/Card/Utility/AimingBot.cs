@@ -17,7 +17,6 @@ public class AimingBot : MonoBehaviourPunCallbacks
     private float rotZ;
 
     private const float RotationSpeed = 200;
-    private const int DropCardEventCode = 7;
     // Start is called before the first frame update
     void Start()
     {
@@ -58,19 +57,18 @@ public class AimingBot : MonoBehaviourPunCallbacks
         }
     }
 
-
     //Drop Zone Start *** //
     public void OnDropToHandCards(BaseEventData t_event)
     {
         UI.hideAllReceivingCardSection();
         PointerEventData eventData = (PointerEventData)t_event;
         CardItem cardItem = eventData.selectedObject.GetComponent<CardItem>();
-        int toPlayerSequel = Gateway.GetPlayerSequenceByName(PhotonNetwork.LocalPlayer.NickName);
+        int toPlayerSequel = Gateway.GetPlayerSequenceByName(playerName);
         int fromPlayerSequel = Gateway.GetPlayerSequenceByName(PhotonNetwork.LocalPlayer.NickName);
-        Gateway.raiseCertainEvent(DropCardEventCode, new object[] { cardItem.cardId, 3, toPlayerSequel, fromPlayerSequel });//3 indicates giving cards to others
+        Gateway.raiseCertainEvent(Gateway.DropCardCode(), new object[] { cardItem.cardId, 3, toPlayerSequel, fromPlayerSequel });//3 indicates giving cards to others
         Gateway.GetCardListing().removeSelectedCardFromHand(cardItem.cardId);
     }
-
+    //Send Card Command
     public void OnDropToCardIndicator(PointerEventData eventData)
     {
         UI.hideAllReceivingCardSection();
@@ -79,7 +77,7 @@ public class AimingBot : MonoBehaviourPunCallbacks
         else cardId = Gateway.currentCardId;
         CardListing.selectedCard = null;
         if (cardId == -1) return;
-        Gateway.raiseCertainEvent( Gateway.SendCardCode(), new object[] { Gateway.GetPlayerSequenceByName(playerName), cardId });//sendcardEvent
+        Gateway.raiseCertainEvent( Gateway.SendCardCode(), new object[] { Gateway.GetPlayerSequenceByName(PhotonNetwork.LocalPlayer.NickName), Gateway.GetPlayerSequenceByName(playerName), cardId });//sendcardEvent
         Gateway.GetCardListing().removeSelectedCardFromHand(cardId);
     }
 

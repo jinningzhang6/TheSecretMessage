@@ -55,6 +55,7 @@ public class Gateway : Server, IOnEventCallback
         if (PhotonNetwork.IsMasterClient) StartGameServer();
     }
 
+    //Whole Game Logic
     public void OnEvent(EventData photonEvent)//system triggers
     {
         byte eventCode = photonEvent.Code;
@@ -65,11 +66,12 @@ public class Gateway : Server, IOnEventCallback
         {
             case DrawCardEventCode:
                 Player drawCardPlayer = (Player)playerSequences[$"{(int)data[0]}"];
-                GameUI.showRealtimeMessage($"玩家[{drawCardPlayer.NickName}]抽了一张牌");
+                if(data.Length < 3) GameUI.showRealtimeMessage($"玩家[{drawCardPlayer.NickName}]抽了一张牌");
                 GameUI.showAssignCardAnimation(drawCardPlayer);
                 if (!PhotonNetwork.IsMasterClient) return;
                 int requestedCards = (int)data[1];
-                DrawCardsForPlayer(drawCardPlayer, requestedCards);
+                if (data.Length < 3) DrawCardsForPlayer(drawCardPlayer, requestedCards);
+                else assignMessageForPlayer(drawCardPlayer, -1);
                 break;
 
             case TurnStartEventCode:
@@ -80,14 +82,17 @@ public class Gateway : Server, IOnEventCallback
                 subTurnCount = turnCount;//Host player == subTurnPlayer because Host player hasn't decided a card to pass
                 hostPlayerInturn = (Player)playerSequences[$"{turnCount}"];
                 GameUI.showRealtimeMessage($"玩家[{hostPlayerInturn.NickName}]的回合");
+                GameUI.setCurrentPlayerTurn(hostPlayerInturn.NickName);
                 if (hostPlayerInturn.IsLocal) GameUI.showEndTurnButton();
                 break;
 
             case SendCardEventCode:
-                subTurnCount = (int)data[0] % playersCount;
-                currentCardId = (int)data[1];
-                Player PlayerToReceive = (Player)playerSequences[$"{subTurnCount}"];
-                GameUI.showPassingCard(PlayerToReceive);
+                int senderPlayer = (int)data[0] % playersCount;
+                subTurnCount = (int)data[1] % playersCount;
+                currentCardId = (int)data[2];
+                Player PlayerSend = GetPlayerBySeq(senderPlayer);
+                Player PlayerToReceive = GetPlayerBySeq(subTurnCount);
+                GameUI.showPassingCard(PlayerSend, PlayerToReceive);
                 GameUI.showRealtimeMessage($"等待玩家[{PlayerToReceive.NickName}]的回复");
                 if (PlayerToReceive.IsLocal) GameUI.showCommandManipulation();
                 else GameUI.hideCommandManipulation();
@@ -101,8 +106,7 @@ public class Gateway : Server, IOnEventCallback
                 int playerSequel = (int)data[0];
                 int receivedCard = (int)data[1];
                 Player player = (Player)playerSequences[$"{playerSequel}"];
-                GameUI.showRealtimeMessage($"玩家[{player.NickName}]接收了情报!");
-                GameUI.showPlayerReceivedMessage(receivedCard);
+                GameUI.showPlayerReceivedMessage(player, receivedCard);
                 break;
 
             case SpellCardEventCode:
@@ -110,38 +114,37 @@ public class Gateway : Server, IOnEventCallback
                 break;
 
             case ToEndTurnEventCode:
+                currentCardId = -1;
                 GameUI.hidePassingCard();
                 SpellCardsListing.ResetSpellCardListing();
+                break;
+
+            case OpenCardEventCode:
+                int playerSeq = (int)data[0];
+                int action = (int)data[1];
+                PlayerCmd.processOpenCard(GetPlayerBySeq(playerSeq), action);
+                break;
+
+            case DropCardEventCode:
+                int cardId = (int)data[0];
+                int daction = (int)data[1];
+                int tplayerSeq = (int)data[2];
+                if (daction > 1 && data.Length > 3)
+                {
+                    int fplayerSeq = (int)data[3];
+                    PlayerCmd.processGiveCard(GetPlayerBySeq(fplayerSeq), GetPlayerBySeq(tplayerSeq), cardId, daction);
+                }
+                else
+                {
+                    AddCardToTrash(daction, cardId);
+                    GameUI.manipulateDeckUI(GetTrashCardCountByType(daction), daction);
+                    GameUI.showRealtimeMessage($"{GetPlayerBySeq(tplayerSeq).NickName}丢弃了一张牌到{(daction == 1 ? "明" : "暗")}弃牌堆");
+                }
                 break;
 
             default:
                 break;
         }
-    }
-
-    public int GetPlayerSequenceByName(string name)
-    {
-        return (int)playerSequencesByName[name];
-    }
-
-    public int GetPositionByPlayer(Player player)
-    {
-        return (int)playerPositions[player];
-    }
-
-    public Player GetPlayerBySeq(int sequence)
-    {
-        return (Player)playerSequences[$"{sequence}"];
-    }
-
-    public int GetSubTurnSeq()
-    {
-        return subTurnCount;
-    }
-
-    public UI GetGameUI()
-    {
-        return GameUI;
     }
 
     public void startNextRound()
@@ -150,30 +153,25 @@ public class Gateway : Server, IOnEventCallback
         StartGameServer();
     }
 
-    public SpellCardsOnTable GetSpellCardsListing()
-    {
-        return SpellCardsListing;
-    }
+    public int GetPlayerSequenceByName(string name) { return (int)playerSequencesByName[name]; }
 
-    public CardListing GetCardListing()
-    {
-        return CardListing;
-    }
+    public int GetPositionByPlayer(Player player) { return (int)playerPositions[player]; }
 
-    public BurnCardListing GetBurnCardListing()
-    {
-        return BurnCardListing;
-    }
+    public Player GetPlayerBySeq(int sequence) { return (Player)playerSequences[$"{sequence}"]; }
 
-    public PlayerCmd GetPlayerCmd()
-    {
-        return PlayerCmd;
-    }
+    public int GetSubTurnSeq() { return subTurnCount; }
 
-    public Animation GetGameAnimation()
-    {
-        return GameAnimation;
-    }
+    public UI GetGameUI() { return GameUI; }
+
+    public SpellCardsOnTable GetSpellCardsListing() { return SpellCardsListing; }
+
+    public CardListing GetCardListing() { return CardListing; }
+
+    public BurnCardListing GetBurnCardListing() { return BurnCardListing; }
+
+    public PlayerCmd GetPlayerCmd() { return PlayerCmd; }
+
+    public Animation GetGameAnimation() { return GameAnimation; }
 
     public byte DrawCardCode() { return DrawCardEventCode; }
     public byte TurnStartCode() { return TurnStartEventCode; }

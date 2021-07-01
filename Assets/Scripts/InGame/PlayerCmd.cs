@@ -14,6 +14,23 @@ public class PlayerCmd : MonoBehaviour
         Gateway = MainScene.GetComponent<Gateway>();   
     }
 
+    //*** UI Control Function ***//
+    public void drawCard(BaseEventData t_event)
+    {
+        PointerEventData eventData = (PointerEventData)t_event;
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            object[] content = new object[] { Gateway.GetPlayerSequenceByName($"{PhotonNetwork.LocalPlayer.NickName}"), 1 };
+            Gateway.raiseCertainEvent(Gateway.DrawCardCode(), content);
+        }
+        else
+        {
+            object[] content = new object[] { Gateway.GetPlayerSequenceByName($"{PhotonNetwork.LocalPlayer.NickName}"), 1, true };
+            Gateway.raiseCertainEvent(Gateway.DrawCardCode(), content);
+        }
+    }
+
+    //*** UI Control Function ***//
     public void acceptCard()
     {
         if (Gateway.currentCardId == -1) return;
@@ -22,30 +39,21 @@ public class PlayerCmd : MonoBehaviour
         Gateway.raiseCertainEvent(Gateway.EndTurnCode(), new object[] { Gateway.currentCardId });
     }
 
-    public void sendCard()
-    {
-        //if (CardListing.selectedCard == null && Gateway.currentCardId == -1) return;//selectedCard->I sent, currentCardId->OtherPlayer sent
-        //if (Gateway.currentCardId == -1) currentCardId = CardListing.selectedCard.cardId;
-        //Gateway.raiseCertainEvent(Gateway.SendCardCode(), new object[] { Gateway.GetSubTurnSeq()+1 , Gateway.currentCardId });
-        //cardListing.removeSelectedCardFromHand();
-        //incomingManipulation.SetActive(false);
-        //CardListing.selectedCard = null;
-    }
-
     //*** UI Control Function ***//
     public void ClickUseSpell()
     {
         if (CardListing.selectedCard == null) return;
         int type = CardListing.selectedCard.spellType;
-        if (!Gateway.isPlayerCastAllowed(type, Gateway.GetSubTurnSeq(), Gateway.currentCardId))// Cards not allowed in other players turn
+        if (!Gateway.isPlayerCastAllowed(type, Gateway.GetSubTurnSeq(), Gateway.currentCardId))//first step check
             Gateway.GetGameUI().showReminderText(4, type);
-        else if (type == 2 || type == 3 || type == 4 || type == 5 || type == 8)//use directly
+        else if (type == 2 || type == 5 || type == 7 || type == 8)//use directly
             SendSpellCardRequest(CardListing.selectedCard.cardId, type, PhotonNetwork.LocalPlayer.NickName);
         else
+        {
             Gateway.GetGameUI().hideUseSpellButton();//type==0, 1, 3, 4, 6 waiting for user to choose target
-        
-        Gateway.GetGameUI().showCancelSpellButton();
-        Gateway.GetGameUI().setUseSpell(true);
+            Gateway.GetGameUI().showCancelSpellButton();
+            Gateway.GetGameUI().setUseSpell(true);
+        }
     }
 
     //Call when 1) User select player to use spell card. 2) User uses spell card without selecting a player.
@@ -91,16 +99,16 @@ public class PlayerCmd : MonoBehaviour
     }
 
     //*** UI Control Function ***//
-    public void onDropHandZone(BaseEventData t_event)
+    public void onDropHandZone(BaseEventData t_event)//Drag card from table to own card section
     {
         PointerEventData eventData = (PointerEventData)t_event;
         CardItem cardItem = eventData.selectedObject.GetComponent<CardItem>();
         if (cardItem == null || Gateway.GetCardListing().checkHandContainsCard(cardItem.cardId)) return;
         int playerSequel = Gateway.GetPlayerSequenceByName($"{PhotonNetwork.LocalPlayer.NickName}");
-        Gateway.raiseCertainEvent(Gateway.DropCardCode(), new object[] { cardItem.cardId, 4, playerSequel, playerSequel });//4 indicates grabbing cards
+        Gateway.raiseCertainEvent(Gateway.DropCardCode(), new object[] { cardItem.cardId, 4, playerSequel, playerSequel });//4 indicates grabbing cards from table
     }
 
-    private void processGiveCard(Player fromPlayer, Player toPlayer, int card, int action)
+    public void processGiveCard(Player fromPlayer, Player toPlayer, int card, int action)
     {
         if (action == 3) Gateway.GetGameUI().showRealtimeMessage($"玩家[{fromPlayer.NickName}]递给了玩家[{toPlayer.NickName}]一张手牌!");
         else if (action == 4)
@@ -111,7 +119,7 @@ public class PlayerCmd : MonoBehaviour
         Gateway.GiveCardToPlayer(card, toPlayer);
     }
 
-    private void processOpenCard(Player player, int action)
+    public void processOpenCard(Player player, int action)
     {
         if (action == 0)
         {

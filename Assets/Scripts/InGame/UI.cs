@@ -3,7 +3,6 @@ using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
@@ -15,20 +14,21 @@ public class UI : MonoBehaviourPunCallbacks
     public GameObject[] playerUIs, passingCardUIs, playerReceiveCardUIs, debuff_indicatorUIs;
     private GameObject[] newPlayerUIS, newPassingCardUIs, newDebuffIndicatorUIs;
     public static GameObject[] newPlayerReceiveCardUIs;
-    
+
+    public GameObject[] OpenTrashDeckUI,CloseTrashDeckUI;
+
     /*Tag: Button UI */
-    public GameObject endTurnButton, incomingManipulation, useSpellButton, cancelSpellButton;
-    /*Tag: Text UI */
+    public GameObject burnCardWindow, incomingManipulation, endTurnButton, useSpellButton, cancelSpellButton;
+    /*Tag: Text/Img UI */
     public Text turnPrompt, playerTurnUI, cardsLeftUI, reminderText;
-
-    public GameObject openCard, burnCardWindow;
+    public GameObject openCard;
     
-    private Gateway Gateway;
-    public Vector3 passingCardPosition, assigningCardPosition;
-
     /*Tag: Animation Control */
+    public Vector3 passingCardPosition, assigningCardPosition;
     public bool shouldAnimatePassingCard,shouldAnimateAssigningCard;
     public bool isPlayerUsingSpell, isCardOpen;
+
+    private Gateway Gateway;
 
     protected string[] spellCardsName = new string[] { "锁定", "调虎离山", "增援", "转移", "博弈", "截获", "试探", "烧毁" };
 
@@ -46,6 +46,8 @@ public class UI : MonoBehaviourPunCallbacks
 
     void Start() {
         Gateway = MainScene.GetComponent<Gateway>();
+        manipulateDeckUI(0, 0);
+        manipulateDeckUI(0, 1);
     }
 
     //Delete extra player section on the table
@@ -117,6 +119,34 @@ public class UI : MonoBehaviourPunCallbacks
         refreshBurnCardWindow(targetPlayer);
     }
 
+    public void manipulateDeckUI(int count, int action)
+    {
+        if(action == 1)
+        {
+            foreach (GameObject object1 in OpenTrashDeckUI)
+            {
+                object1.SetActive(true);
+            }
+
+            if (count < 100) OpenTrashDeckUI[4].SetActive(false);
+            if (count < 50) OpenTrashDeckUI[3].SetActive(false);
+            if (count < 10) OpenTrashDeckUI[2].SetActive(false);
+            if (count < 2) OpenTrashDeckUI[1].SetActive(false);
+        }
+        else
+        {
+            foreach (GameObject object1 in CloseTrashDeckUI)
+            {
+                object1.SetActive(true);
+            }
+
+            if (count < 100) CloseTrashDeckUI[4].SetActive(false);
+            if (count < 50) CloseTrashDeckUI[3].SetActive(false);
+            if (count < 10) CloseTrashDeckUI[2].SetActive(false);
+            if (count < 2) CloseTrashDeckUI[1].SetActive(false);
+        }
+    }
+
     //*** Show Player's Received Messages Window Start **//
     public void showBurnCardWindow(string playerName)
     {
@@ -182,9 +212,12 @@ public class UI : MonoBehaviourPunCallbacks
     public void resetUserDebuffUI() { for (int i = 0; i < newDebuffIndicatorUIs.Length; i++) newDebuffIndicatorUIs[i].SetActive(false); }
     //*** Set Player Debuff UI End  **//
 
-    public void showRealtimeMessage(string text) { StartCoroutine(executeCodeAfterSecondsForTurnMessage(text)); }
+    public void showRealtimeMessage(string text) { StartCoroutine(executeCodeAfterSecondsForTurnMessage(2, text)); }
 
-    public void showPlayerReceivedMessage(int cardId) { StartCoroutine(executeCodeAfterSecondsForReceiveCard(4,cardId)); }
+    public void showPlayerReceivedMessage(Player player, int cardId) { 
+        StartCoroutine(executeCodeAfterSecondsForReceiveCard(3, cardId));
+        StartCoroutine(executeCodeAfterSecondsForTurnMessage(3, $"玩家[{player.NickName}]接收了情报!"));
+    }
 
     public void showAssignCardAnimation(Player player) { StartCoroutine(executeCodeAfterSecondsForAssigningCard(2, player)); }
 
@@ -208,20 +241,18 @@ public class UI : MonoBehaviourPunCallbacks
 
     public void hideCancelSpellButton() { cancelSpellButton.SetActive(false); }
 
-    public void showPassingCard(Player player)
+    public void showPassingCard(Player playerSend, Player playerReceive)
     {
-        Debug.Log("show my pass card");
+        Gateway.GetGameAnimation().setPassingCardPositionToSendingPlayer(newPassingCardUIs[Gateway.GetPositionByPlayer(playerSend)].transform.position);
         shouldAnimatePassingCard = true;
-        passingCardPosition = newPassingCardUIs[Gateway.GetPositionByPlayer(player)].transform.position;
+        passingCardPosition = newPassingCardUIs[Gateway.GetPositionByPlayer(playerReceive)].transform.position;
     }
 
-    public void hidePassingCard()
-    {
-        Debug.Log("hide my pass card");
-        shouldAnimatePassingCard = false;
-    }
+    public void hidePassingCard() { shouldAnimatePassingCard = false; }
 
     public void setUseSpell(bool isUsingSpell) { isPlayerUsingSpell = isUsingSpell; }
+
+    public void setCurrentPlayerTurn(string playerName) { playerTurnUI.text = playerName; }
 
     public void setCurrentNumCards(int num) { cardsLeftUI.text = $"{num}"; }
 
@@ -231,11 +262,11 @@ public class UI : MonoBehaviourPunCallbacks
 
     public bool isCurrentPassingCardOpen() { return isCardOpen; }
 
-    IEnumerator executeCodeAfterSecondsForTurnMessage(string text)
+    IEnumerator executeCodeAfterSecondsForTurnMessage(int secs, string text)
     {
         turnPrompt.GetComponent<Text>().color = new Color(1, 1, 1, 1);
         turnPrompt.GetComponent<Text>().text = text;
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(secs);
         for (float i = 1; i >= 0; i -= Time.deltaTime)
         {
             turnPrompt.GetComponent<Text>().color = new Color(1, 1, 1, i);
@@ -246,12 +277,12 @@ public class UI : MonoBehaviourPunCallbacks
     IEnumerator executeCodeAfterSecondsForReceiveCard(int secs,int receivedCard)
     {
         openCard.SetActive(true);
-        openCard.GetComponentInChildren<Image>().sprite = Server.Deck[receivedCard].image;
-        openCard.GetComponentInChildren<Image>().color = new Color(1, 1, 1, 1);
+        openCard.GetComponentsInChildren<Image>()[1].sprite = Server.Deck[receivedCard].image;
+        openCard.GetComponentsInChildren<Image>()[1].color = new Color(1, 1, 1, 1);
         yield return new WaitForSeconds(secs);
         for (float i = 1; i >= 0; i -= Time.deltaTime)
         {
-            openCard.GetComponentInChildren<Image>().color = new Color(1, 1, 1, i);
+            openCard.GetComponentsInChildren<Image>()[1].color = new Color(1, 1, 1, i);
             yield return null;
         }
         openCard.SetActive(false);
