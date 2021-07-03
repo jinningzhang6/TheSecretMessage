@@ -27,7 +27,7 @@ public class SpellCmd : MonoBehaviourPunCallbacks
         else if (spellType == 3) SpellRedirect((int)data[0], (int)data[2]);
         else if (spellType == 4) SpellGamble((int)data[0], (int)data[2]);
         else if (spellType == 5) SpellIntercept((int)data[2]);
-        else if (spellType == 7) SpellBurn((int)data[0], (int)data[1]);
+        else if (spellType == 7) SpellBurn((int)data[0], (int)data[1], (int)data[2]);
         else if (spellType == 8) SpellChange((int)data[0]);
     }
 
@@ -62,12 +62,13 @@ public class SpellCmd : MonoBehaviourPunCallbacks
 
     private void SpellIntercept(int castPlayer)//Num[5] JieHuo
     {
-        StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, -1, "Redirect")));
+        StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, -1, "Intercept")));
     }
 
-    private void SpellBurn(int fromPlayer, int cardId)//Num[7] ShaoHui
+    private void SpellBurn(int fromPlayer, int cardId, int toPlayer)//Num[7] ShaoHui
     {
-        StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, -1, "Burn")));
+        Gateway.deleteMessage(Gateway.GetPlayerBySeq(toPlayer), cardId);
+        StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, toPlayer, "Burn")));
     }
 
     private void SpellChange(int fromPlayer)//Num[8] DiaoBao

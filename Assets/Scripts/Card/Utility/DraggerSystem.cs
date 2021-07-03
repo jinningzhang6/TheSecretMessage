@@ -10,7 +10,7 @@ public class DraggerSystem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     void Start()
     {
-        if (name == "PassingCardX")gameObject.SetActive(false);
+        if (name == "PassingCardX") gameObject.SetActive(false);
         onDraggingCardItem = null;
     }
 
@@ -21,10 +21,10 @@ public class DraggerSystem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         else gameObject.SetActive(true);
         if (eventData.pointerDrag.TryGetComponent(out CardItem item))
         {
-            onDraggingCardItem = item;//bug
+            onDraggingCardItem = item;
             UI.showAllReceivingCardSection(onDraggingCardItem.cardType, onDraggingCardItem.cardId);
         }
-        else UI.showAllReceivingCardSection();
+        //else UI.showAllReceivingCardSection();
         canvas = eventData.pointerDrag.GetComponent<CanvasGroup>();
         canvas.alpha = 0.6f;
         canvas.blocksRaycasts = false;

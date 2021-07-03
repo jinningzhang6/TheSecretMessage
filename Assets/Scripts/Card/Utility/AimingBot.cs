@@ -100,6 +100,7 @@ public class AimingBot : MonoBehaviourPunCallbacks
         Gateway.GetPlayerCmd().StopUsingSpell();
     }
 
+    //*** UI Control Function ***//
     public void clickOnMsgButton()
     {
         GameUI.showBurnCardWindow(playerName);

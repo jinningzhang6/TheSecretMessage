@@ -68,7 +68,7 @@ public class Animation : MonoBehaviourPunCallbacks
         alreadyOpenedCard = shouldOpenCard;
     }
 
-    public void setPassingCardPositionToSendingPlayer(Vector3 originPosition)
+    public void setOriginPosForPassingCard(Vector3 originPosition)
     {
         passingCardLive.transform.position = originPosition;
     }

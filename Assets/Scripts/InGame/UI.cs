@@ -3,6 +3,7 @@ using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
@@ -151,7 +152,7 @@ public class UI : MonoBehaviourPunCallbacks
     public void showBurnCardWindow(string playerName)
     {
         int sequence = (int)Gateway.playerSequencesByName[playerName];
-        Gateway.GetBurnCardListing().AddMsgCard((Player)Gateway.playerSequences[$"{sequence}"]);
+        Gateway.GetBurnCardListing().AddMsgCard(Gateway.GetPlayerBySeq(sequence));
         burnCardWindow.SetActive(true);
         BurnCardListing.selectedBurnCard = null;
     }
@@ -170,17 +171,17 @@ public class UI : MonoBehaviourPunCallbacks
     //*** Show Player's Received Messages Window End  **//
 
     //*** Show Place-To-Put Indicator on Table Start **//
-    private void setAllReceivingCardSection()
+    //*** UI Control Function ***//
+    public void showAllReceivingCardSection()
     {
         int type = Server.Deck[Gateway.currentCardId].type;
         foreach (GameObject gameObject in newPlayerReceiveCardUIs)
         {
+            gameObject.SetActive(true);
             if (type >= 2) gameObject.GetComponent<Image>().sprite = Server.Deck[Gateway.currentCardId].image;
             else gameObject.GetComponent<Image>().sprite = CardAssets.backgroundCards[type];
         }
     }
-
-    public static void showAllReceivingCardSection(){ foreach (GameObject gameObject in newPlayerReceiveCardUIs) gameObject.SetActive(true);}
 
     public static void showAllReceivingCardSection(int type, int cardId)
     {
@@ -241,11 +242,15 @@ public class UI : MonoBehaviourPunCallbacks
 
     public void hideCancelSpellButton() { cancelSpellButton.SetActive(false); }
 
-    public void showPassingCard(Player playerSend, Player playerReceive)
+    public void showPassingCard(Player playerReceive)
     {
-        Gateway.GetGameAnimation().setPassingCardPositionToSendingPlayer(newPassingCardUIs[Gateway.GetPositionByPlayer(playerSend)].transform.position);
         shouldAnimatePassingCard = true;
         passingCardPosition = newPassingCardUIs[Gateway.GetPositionByPlayer(playerReceive)].transform.position;
+    }
+
+    public Vector3 GetVectorPosByPlayerSeq(int seq)
+    {
+        return newPassingCardUIs[seq].transform.position;
     }
 
     public void hidePassingCard() { shouldAnimatePassingCard = false; }

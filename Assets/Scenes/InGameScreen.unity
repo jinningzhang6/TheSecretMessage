@@ -2247,8 +2247,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 28.902012, y: -115.93}
-  m_SizeDelta: {x: 192.18, y: 18.056}
+  m_AnchoredPosition: {x: 28.906, y: -115.93}
+  m_SizeDelta: {x: 192.19, y: 18.056}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &412294928
 MonoBehaviour:
@@ -2454,6 +2454,14 @@ PrefabInstance:
     - target: {fileID: 4427390293567608119, guid: 3c614c8b0fb90ce44bcfa3eecc42cdf2, type: 3}
       propertyPath: m_Color.r
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6398735743299188642, guid: 3c614c8b0fb90ce44bcfa3eecc42cdf2, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 250
+      objectReference: {fileID: 0}
+    - target: {fileID: 6398735743299188642, guid: 3c614c8b0fb90ce44bcfa3eecc42cdf2, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -1.5643e-10
       objectReference: {fileID: 0}
     - target: {fileID: 7911606501161597782, guid: 3c614c8b0fb90ce44bcfa3eecc42cdf2, type: 3}
       propertyPath: m_Name
@@ -3669,6 +3677,22 @@ MonoBehaviour:
           m_TargetAssemblyTypeName: PlayerCmd, Assembly-CSharp
           m_MethodName: ClickOnPassingCard
           m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 5
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 33263947}
+          m_TargetAssemblyTypeName: UI, Assembly-CSharp
+          m_MethodName: showAllReceivingCardSection
+          m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -5828,7 +5852,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 28.902012, y: -115.93}
+  m_AnchoredPosition: {x: 28.901, y: -115.93}
   m_SizeDelta: {x: 192.18, y: 18.056}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1428404751
@@ -6449,8 +6473,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 30, y: -116.93}
-  m_SizeDelta: {x: 192.18, y: 18.058}
+  m_AnchoredPosition: {x: 29.455, y: -116.93}
+  m_SizeDelta: {x: 191.09, y: 18.058}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1479610023
 MonoBehaviour:
@@ -6581,8 +6605,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 30, y: -116.93}
-  m_SizeDelta: {x: 192.18, y: 18.058}
+  m_AnchoredPosition: {x: 29.450012, y: -116.93}
+  m_SizeDelta: {x: 191.08, y: 18.058}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1500781048
 MonoBehaviour:
@@ -7935,8 +7959,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 28.902012, y: -115.93}
-  m_SizeDelta: {x: 192.18, y: 18.056}
+  m_AnchoredPosition: {x: 28.906, y: -115.93}
+  m_SizeDelta: {x: 192.19, y: 18.056}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1682120797
 MonoBehaviour:
@@ -8148,7 +8172,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 28.902012, y: -115.93}
+  m_AnchoredPosition: {x: 28.901005, y: -115.93}
   m_SizeDelta: {x: 192.18, y: 18.056}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1732308991

@@ -22,7 +22,6 @@ public class Gateway : Server, IOnEventCallback
     public Player hostPlayerInturn;
 
     public int currentCardId { private set; get; }
-    public int currentCardType { private set; get; }
 
     protected override void Awake()
     {
@@ -84,15 +83,21 @@ public class Gateway : Server, IOnEventCallback
                 GameUI.showRealtimeMessage($"玩家[{hostPlayerInturn.NickName}]的回合");
                 GameUI.setCurrentPlayerTurn(hostPlayerInturn.NickName);
                 if (hostPlayerInturn.IsLocal) GameUI.showEndTurnButton();
+                else GameUI.hideEndTurnButton();
                 break;
 
             case SendCardEventCode:
-                int senderPlayer = (int)data[0] % playersCount;
                 subTurnCount = (int)data[1] % playersCount;
-                currentCardId = (int)data[2];
-                Player PlayerSend = GetPlayerBySeq(senderPlayer);
+                int newCardId = (int)data[2];
+                if (newCardId != currentCardId)//Passing New Card
+                {
+                    GameAnimation.setOpenCard(false);//Closed Status [Default]
+                    GameAnimation.setOriginPosForPassingCard(GameUI.GetVectorPosByPlayerSeq((int)data[0]));//Origin Pos
+                    GameAnimation.setPassingCardBck(Deck[newCardId].type, Deck[newCardId].image, false);
+                    currentCardId = newCardId;
+                }
                 Player PlayerToReceive = GetPlayerBySeq(subTurnCount);
-                GameUI.showPassingCard(PlayerSend, PlayerToReceive);
+                GameUI.showPassingCard(PlayerToReceive);
                 GameUI.showRealtimeMessage($"等待玩家[{PlayerToReceive.NickName}]的回复");
                 if (PlayerToReceive.IsLocal) GameUI.showCommandManipulation();
                 else GameUI.hideCommandManipulation();
@@ -153,6 +158,7 @@ public class Gateway : Server, IOnEventCallback
         StartGameServer();
     }
 
+    //Encapsulation. Made it easier to fetch internal player position info
     public int GetPlayerSequenceByName(string name) { return (int)playerSequencesByName[name]; }
 
     public int GetPositionByPlayer(Player player) { return (int)playerPositions[player]; }

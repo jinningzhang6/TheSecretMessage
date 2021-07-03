@@ -79,7 +79,6 @@ public class PlayerCmd : MonoBehaviour
     {
         Gateway.resetUserDebuff();
         Gateway.startNextRound();
-        Gateway.GetGameUI().hideEndTurnButton();
     }
 
     //*** UI Control Function ***//
@@ -124,13 +123,13 @@ public class PlayerCmd : MonoBehaviour
         if (action == 0)
         {
             Gateway.GetGameUI().showRealtimeMessage($"玩家[{player.NickName}]翻开了情报!");
-            if (player.IsLocal) Gateway.GetGameAnimation().setPassingCardBck(Gateway.currentCardType, Server.Deck[Gateway.currentCardId].image, true);
+            if (player.IsLocal) Gateway.GetGameAnimation().setPassingCardBck(Server.Deck[Gateway.currentCardId].type, Server.Deck[Gateway.currentCardId].image, true);
         }
         else
         {
             Gateway.GetGameUI().showRealtimeMessage($"玩家[{player.NickName}]公开了情报!");
             Gateway.GetGameAnimation().setOpenCard(true);
-            Gateway.GetGameAnimation().setPassingCardBck(Gateway.currentCardType, Server.Deck[Gateway.currentCardId].image, true);
+            Gateway.GetGameAnimation().setPassingCardBck(Server.Deck[Gateway.currentCardId].type, Server.Deck[Gateway.currentCardId].image, true);
         }
     }
 }

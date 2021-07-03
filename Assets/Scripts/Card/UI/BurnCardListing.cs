@@ -35,9 +35,10 @@ public class BurnCardListing : MonoBehaviourPunCallbacks
         Hashtable table = getPlayerHashTable(player);
         if (!table.ContainsKey("msgStack")) return;
         object[] receivedMsgs = (object[])table["msgStack"];
-
+        
         foreach(object each in receivedMsgs)
         {
+            if (each == null) continue;
             int id = (int)each;
             int index = listing.FindIndex(x => x.cardId == id);
             if (index != -1) continue;
@@ -77,9 +78,8 @@ public class BurnCardListing : MonoBehaviourPunCallbacks
     public void burnCertainCard()
     {
         if (selectedBurnCard == null || BurnedPlayer == null) return;
-        Gateway.raiseCertainEvent(3 , new object[] { Gateway.GetPlayerSequenceByName(PhotonNetwork.LocalPlayer.NickName), selectedBurnCard.cardId, Gateway.GetPlayerSequenceByName(BurnedPlayer.NickName), 7 });//6 indicates burn cards, 3 -> SpellCardEventCode
+        Gateway.raiseCertainEvent(Gateway.SpellCardCode() , new object[] { Gateway.GetPlayerSequenceByName(PhotonNetwork.LocalPlayer.NickName), selectedBurnCard.cardId, Gateway.GetPlayerSequenceByName(BurnedPlayer.NickName), 7 });//7 burn card code
+        selectedBurnCard = null;
     }
-
-
 
 }
