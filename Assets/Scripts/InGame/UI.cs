@@ -3,7 +3,6 @@ using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
@@ -11,7 +10,7 @@ public class UI : MonoBehaviourPunCallbacks
 {
     public GameObject MainScene;
 
-    /*Tag: Dynamic UI */
+    /*Tag: Dynamic UI *///view gateway->controller
     public GameObject[] playerUIs, passingCardUIs, playerReceiveCardUIs, debuff_indicatorUIs;
     private GameObject[] newPlayerUIS, newPassingCardUIs, newDebuffIndicatorUIs;
     public static GameObject[] newPlayerReceiveCardUIs;

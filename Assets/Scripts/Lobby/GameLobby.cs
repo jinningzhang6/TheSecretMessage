@@ -84,6 +84,7 @@ public class GameLobby : MonoBehaviourPunCallbacks
         roomNameObject.text = PhotonNetwork.CurrentRoom.Name.Split(' ')[0];
         setRoomPlayersInfo();
         openGameRoomWindow();
+        //room custom properties set
     }
 
     public override void OnConnectedToMaster()
@@ -176,6 +177,7 @@ public class GameLobby : MonoBehaviourPunCallbacks
         }
     }
 
+    //list<int> 2,1,3
     private List<int> shufflePositions()
     {
         var count = PhotonNetwork.CurrentRoom.PlayerCount;

@@ -242,7 +242,7 @@ public class Server : MonoBehaviourPunCallbacks
         for (int i = 0, j=0; i < oldStack.Length; i++)
         {
             int cardId = (int)oldStack[i];
-            if (cardId == newcardId || i>=msgStack.Length) continue;
+            if (cardId == newcardId) continue;
             msgStack[j++] = oldStack[i];
         }
 

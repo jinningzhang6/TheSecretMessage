@@ -107,7 +107,7 @@ public class Gateway : Server, IOnEventCallback
                 GameUI.setCurrentNumCards((int)data[0]);
                 break;
 
-            case SuccessReceiveEventCode:
+            case SuccessReceiveEventCode: //array[] array[0] which player send array[1] send card content / action?
                 int playerSequel = (int)data[0];
                 int receivedCard = (int)data[1];
                 Player player = (Player)playerSequences[$"{playerSequel}"];

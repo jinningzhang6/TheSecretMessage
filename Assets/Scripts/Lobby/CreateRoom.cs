@@ -60,9 +60,10 @@ public class CreateRoom : MonoBehaviour
         int redTeam = (red1.isOn ? 1 : 0) + (red2.isOn ? 1 : 0) + (red3.isOn ? 1 : 0);
         int greenTeam = (green1.isOn ? 1 : 0) + (green2.isOn ? 1 : 0);
         PlayerPrefs.SetString("roomname", roomName);
-        PlayerPrefs.SetInt("blueTeam", blueTeam);
-        PlayerPrefs.SetInt("redTeam", redTeam);
-        PlayerPrefs.SetInt("greenTeam", greenTeam);
+        //local
+        PlayerPrefs.SetInt("blueTeam", blueTeam);//jun qing
+        PlayerPrefs.SetInt("redTeam", redTeam);//qian fu
+        PlayerPrefs.SetInt("greenTeam", greenTeam);//jiang you
         PlayerPrefs.SetInt("numPlayers", redTeam+greenTeam+blueTeam);
     }
 
