@@ -35,14 +35,14 @@ public class SpellCmd : MonoBehaviourPunCallbacks
     {
         Player _player = Gateway.GetPlayerBySeq(toPlayer);
         StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, toPlayer, "SuoDing")));
-        setPlayerDebuff(_player, "locked", true, "À¯");
+        setPlayerDebuff(_player, "locked", true, "ÈîÅ");
     }
 
     private void SpellAway(int castPlayer, int toPlayer)//Num[1] DiaoHuLiShan
     {
         Player _player = Gateway.GetPlayerBySeq(toPlayer);
         StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, toPlayer, "Away")));
-        setPlayerDebuff(_player, "awayed", true, "µ˜");
+        setPlayerDebuff(_player, "awayed", true, "Ë∞É");
     }
 
     private void SpellHelp(int castPlayer) { StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, -1, "Help"))); }//Num[2] ZengYuan
@@ -50,7 +50,7 @@ public class SpellCmd : MonoBehaviourPunCallbacks
     private void SpellRedirect(int castPlayer, int toPlayer)//Num[3] ZhuanYi
     {
         Player _player = Gateway.GetPlayerBySeq(toPlayer);
-        setPlayerDebuff(_player, "redirected", true, "◊™");
+        setPlayerDebuff(_player, "redirected", true, "ËΩ¨");
         if (PhotonNetwork.IsMasterClient) Gateway.raiseCertainEvent(Gateway.SendCardCode(), new object[] { castPlayer, toPlayer, Gateway.currentCardId });
         StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, toPlayer, "Redirect")));
     }
