@@ -29,7 +29,7 @@ public class AimingBot : MonoBehaviourPunCallbacks
     {
         Gateway = game_object.GetComponent<Gateway>();
         GameUI = game_object.GetComponent<UI>();
-        playerName = GetComponentsInChildren<Text>()[5].text;
+        playerName = GetComponentsInChildren<Text>()[5].text;//robust
         charIcon = GetComponentsInChildren<Button>()[0];
     }
 

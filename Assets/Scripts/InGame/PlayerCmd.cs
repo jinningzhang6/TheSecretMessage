@@ -46,7 +46,7 @@ public class PlayerCmd : MonoBehaviour
         int type = CardListing.selectedCard.spellType;
         if (!Gateway.isPlayerCastAllowed(type, Gateway.GetSubTurnSeq(), Gateway.currentCardId))//first step check
             Gateway.GetGameUI().showReminderText(4, type);
-        else if (type == 2 || type == 5 || type == 7 || type == 8)//use directly
+        else if (type == 2 || type == 5 || type == 7 || type == 8 || type == 9 || type == 10 || type == 12 || type == 13 || type == 14)//use directly
             SendSpellCardRequest(CardListing.selectedCard.cardId, type, PhotonNetwork.LocalPlayer.NickName);
         else
         {
@@ -98,6 +98,23 @@ public class PlayerCmd : MonoBehaviour
     }
 
     //*** UI Control Function ***//
+    public void ClickOnTestSpellCard(BaseEventData t_event)//relates to CloseTestSpellCard()
+    {
+        PointerEventData eventData = (PointerEventData)t_event;
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            Gateway.raiseCertainEvent(Gateway.SpellCardCode(), new object[] { Gateway.GetPlayerSequenceByName(PhotonNetwork.LocalPlayer.NickName), -2, -1, 6 });//6 means è¯•æ¢å¡ç‰Œ, -2 means Peek card
+        }
+    }
+
+    //*** UI Control Function ***//
+    public void CloseTestSpellCard()//relates to ClickOnTestSpellCard()
+    {
+        //4 indicates grabbing cards from table, -1 means Close card
+        Gateway.raiseCertainEvent(Gateway.SpellCardCode(), new object[] { Gateway.GetPlayerSequenceByName(PhotonNetwork.LocalPlayer.NickName), -1, -1, 6 });
+    }
+
+    //*** UI Control Function ***//
     public void onDropHandZone(BaseEventData t_event)//Drag card from table to own card section
     {
         PointerEventData eventData = (PointerEventData)t_event;
@@ -109,10 +126,10 @@ public class PlayerCmd : MonoBehaviour
 
     public void processGiveCard(Player fromPlayer, Player toPlayer, int card, int action)
     {
-        if (action == 3) Gateway.GetGameUI().showRealtimeMessage($"Íæ¼Ò[{fromPlayer.NickName}]µİ¸øÁËÍæ¼Ò[{toPlayer.NickName}]Ò»ÕÅÊÖÅÆ!");
+        if (action == 3) Gateway.GetGameUI().showRealtimeMessage($"ç©å®¶[{fromPlayer.NickName}]é€’ç»™äº†ç©å®¶[{toPlayer.NickName}]ä¸€å¼ æ‰‹ç‰Œ!");
         else if (action == 4)
         {
-            Gateway.GetGameUI().showRealtimeMessage($"Íæ¼Ò[{toPlayer.NickName}]»ñµÃÁËÒ»ÕÅÊÖÅÆ!");
+            Gateway.GetGameUI().showRealtimeMessage($"ç©å®¶[{toPlayer.NickName}]è·å¾—äº†ä¸€å¼ æ‰‹ç‰Œ!");
             Gateway.GetSpellCardsListing().RemoveSpellCard(card);
         }
         Gateway.GiveCardToPlayer(card, toPlayer);
@@ -122,14 +139,16 @@ public class PlayerCmd : MonoBehaviour
     {
         if (action == 0)
         {
-            Gateway.GetGameUI().showRealtimeMessage($"Íæ¼Ò[{player.NickName}]·­¿ªÁËÇé±¨!");
+            Gateway.GetGameUI().showRealtimeMessage($"ç©å®¶[{player.NickName}]ç¿»å¼€äº†æƒ…æŠ¥!");
             if (player.IsLocal) Gateway.GetGameAnimation().setPassingCardBck(Server.Deck[Gateway.currentCardId].type, Server.Deck[Gateway.currentCardId].image, true);
         }
         else
         {
-            Gateway.GetGameUI().showRealtimeMessage($"Íæ¼Ò[{player.NickName}]¹«¿ªÁËÇé±¨!");
+            Gateway.GetGameUI().showRealtimeMessage($"ç©å®¶[{player.NickName}]å…¬å¼€äº†æƒ…æŠ¥!");
             Gateway.GetGameAnimation().setOpenCard(true);
             Gateway.GetGameAnimation().setPassingCardBck(Server.Deck[Gateway.currentCardId].type, Server.Deck[Gateway.currentCardId].image, true);
         }
     }
+
+
 }

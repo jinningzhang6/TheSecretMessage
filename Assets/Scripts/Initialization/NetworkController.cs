@@ -9,7 +9,7 @@ public class NetworkController: MonoBehaviourPunCallbacks
     void Start()
     {
         PhotonNetwork.ConnectUsingSettings();
-        PhotonNetwork.ConnectToRegion("usw");
+        //PhotonNetwork.ConnectToRegion("usw");
     }
 
     public override void OnConnectedToMaster()

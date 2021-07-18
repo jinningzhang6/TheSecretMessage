@@ -9,7 +9,7 @@ using System.Linq;
 
 public class Server : MonoBehaviourPunCallbacks
 {
-    protected string[] spellCardsName = new string[] { "Ëø¶¨", "µ÷»¢ÀëÉ½", "ÔöÔ®", "×ªÒÆ", "²©ŞÄ", "½Ø»ñ", "ÊÔÌ½", "ÉÕ»Ù" };
+    protected string[] spellCardsName = new string[] { "é”å®š", "è°ƒè™ç¦»å±±", "å¢æ´", "è½¬ç§»", "åšå¼ˆ", "æˆªè·", "è¯•æ¢", "çƒ§æ¯" };
 
     private List<int> serverDeck;
     public static List<Card> Deck;
@@ -42,6 +42,11 @@ public class Server : MonoBehaviourPunCallbacks
     protected const int SpellTest = 6;
     protected const int SpellBurn = 7;
     protected const int SpellChange = 8;
+    protected const int SpellView = 9;
+    protected const int SpellGambleAll = 10;
+    protected const int SpellNote = 11;
+    protected const int SpellInvalidate = 12;
+    protected const int SpellTradeOff = 13;
 
     protected virtual void Awake()
     {
@@ -57,7 +62,7 @@ public class Server : MonoBehaviourPunCallbacks
 
     protected void StartGameServer() { raiseCertainEvent(TurnStartEventCode, new object[] { turnCount });}
 
-    protected void assignPlayerPosition(GameObject[] newPlayerUIS)
+    protected void assignPlayerPosition(GameObject[] newPlayerUIS)//ç»™æ‰€æœ‰ç©å®¶å®‰æ’åº§ä½
     {
         int sequence = (int)PhotonNetwork.CurrentRoom.CustomProperties["sequence"];
         int pos = -1;
@@ -131,8 +136,7 @@ public class Server : MonoBehaviourPunCallbacks
 
     public void assignMessageForPlayer(Player player, int cardId)
     {
-        // if cardId == -1, assign random message from systemdeck
-        if (cardId == -1)
+        if (cardId == -1)// if cardId == -1, assign random message from systemdeck
         {
             if (serverDeck.Count == 0) serverDeck = new SystemDeck().getDeck();
             cardId = serverDeck.LastOrDefault();
@@ -191,16 +195,20 @@ public class Server : MonoBehaviourPunCallbacks
     //Ex: 1) Not my turn. 2) Passing card is not in front of me. 3) No currently passing card. 4)Not allowed if I am the passer
     public bool isPlayerCastAllowed(int type, int subTurn, int currentCardId)
     {
-        if(type == SpellHelp || type == SpellGamble || type == SpellTest) 
+        if (type == SpellHelp || type == SpellGamble || type == SpellTest || type == SpellTradeOff || type == SpellGambleAll)
         {
             if (!((Player)playerSequences[$"{turnCount}"]).IsLocal) return false;//(1)
         }
-        if(type==SpellRedirect && subTurn!= (int)playerSequencesByName[$"{PhotonNetwork.LocalPlayer.NickName}"]) return false;//(2)
-        if (type == SpellIntercept || type == SpellRedirect)
+        if (type == SpellRedirect || type == SpellView)
+        {
+            if(subTurn != (int)playerSequencesByName[$"{PhotonNetwork.LocalPlayer.NickName}"]) return false;//(2)
+        }
+        if (type == SpellIntercept || type == SpellRedirect || type == SpellView)
         {
             if (currentCardId == -1) return false;//(3)
             if (type == SpellIntercept) return !(((Player)playerSequences[$"{turnCount}"]).IsLocal);//(4)
         }
+        if (type == SpellNote) return false;
         return true;
     }
 

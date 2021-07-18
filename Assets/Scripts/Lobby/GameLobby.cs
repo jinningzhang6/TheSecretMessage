@@ -2,7 +2,6 @@ using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 using Photon.Realtime;
-using System.Collections;
 using System.Collections.Generic;
 
 public class GameLobby : MonoBehaviourPunCallbacks
@@ -23,6 +22,7 @@ public class GameLobby : MonoBehaviourPunCallbacks
     public Text playerName;
     public Text roomNameObject;
     public Text hostName;
+    public Identities identities;
 
     private string nickname;
     private int iconSequence = 0;
@@ -77,6 +77,11 @@ public class GameLobby : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinOrCreateRoom($"{roomName} {nickname} {PhotonNetwork.CloudRegion} {PlayerPrefs.GetInt("blueTeam")} {PlayerPrefs.GetInt("redTeam")} {PlayerPrefs.GetInt("greenTeam")}", roomOps, this.Lobby, null);
     }
 
+    public override void OnCreatedRoom()
+    {
+        setIdentitiesProperty();
+    }
+
     public override void OnJoinedRoom()
     {
         Debug.Log($"Joined this room. Am I in lobby ? {PhotonNetwork.InLobby}, Am I in room? {PhotonNetwork.InRoom}. there are {PhotonNetwork.CountOfRooms} rooms");
@@ -85,6 +90,13 @@ public class GameLobby : MonoBehaviourPunCallbacks
         setRoomPlayersInfo();
         openGameRoomWindow();
         //room custom properties set
+    }
+
+    private void setIdentitiesProperty()
+    {
+        ExitGames.Client.Photon.Hashtable table = PhotonNetwork.CurrentRoom.CustomProperties == null ? new ExitGames.Client.Photon.Hashtable() : PhotonNetwork.CurrentRoom.CustomProperties;
+        table.Add("identities",  identities.getShuffledIdentities());
+        PhotonNetwork.CurrentRoom.SetCustomProperties(table);
     }
 
     public override void OnConnectedToMaster()
@@ -170,7 +182,7 @@ public class GameLobby : MonoBehaviourPunCallbacks
             table.Add("sequence", Random.Range(0,100));
             for(var i = 0; i < list.Count; i++)
             {
-                table.Add($"{i+(int)table["sequence"]}", PhotonNetwork.CurrentRoom.Players[list[i]]);// list -> LocalPlayer, 房主 ,第二位玩家
+                table.Add($"{i+(int)table["sequence"]}", PhotonNetwork.CurrentRoom.Players[list[i]]);// list -> LocalPlayer, 路驴脰梅 ,碌脷露镁脦禄脥忙录脪
             }
             PhotonNetwork.CurrentRoom.SetCustomProperties(table);
             PhotonNetwork.LoadLevel(2);
@@ -183,7 +195,7 @@ public class GameLobby : MonoBehaviourPunCallbacks
         var count = PhotonNetwork.CurrentRoom.PlayerCount;
         List<int> list = new List<int>();
         
-        foreach (int i in PhotonNetwork.CurrentRoom.Players.Keys)
+        foreach (int i in PhotonNetwork.CurrentRoom.Players.Keys)//Photonnetwork.CurrentRoom.Players int[] { p1, p2, player3}
         {
             list.Add(i);
         }

@@ -242,7 +242,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NicknameInputField: {fileID: 946562951}
   PopoverBackground: {fileID: 646108759}
-  State: 0
 --- !u!114 &28083937
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,13 +1,15 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class SystemDeck
 {
+    private int NumDeckCards = new Deck().getDeck().Count();
     private List<int> deck = new List<int>();
     public SystemDeck()
     {
-        for(int i = 0; i < 72; i++)
+        Debug.Log($"generating deck, num of deck: {NumDeckCards}!");
+        for(int i = 0; i < NumDeckCards; i++)
         {
             deck.Add(i);
         }
