@@ -36,7 +36,7 @@ public class RoomListItem : MonoBehaviour
         _host.text = customProperties[1];
         _room.text = customProperties[0];
         _player.text = roomInfo.PlayerCount + "/" + roomInfo.MaxPlayers;
-        status.text = (roomInfo.PlayerCount < roomInfo.MaxPlayers) ? "¿É¼ÓÈë" : "ÒÑÂú";
+        status.text = (roomInfo.PlayerCount < roomInfo.MaxPlayers) ? "å¯åŠ å…¥" : "å·²æ»¡";
         region = customProperties[2];
         blueTeam = Int16.Parse(customProperties[3]);
         redTeam = Int16.Parse(customProperties[4]);
@@ -51,7 +51,7 @@ public class RoomListItem : MonoBehaviour
 
     public void showDetailedRoomWindow()
     {
-        roomListing.showRoomDetailWindow($"¾üÇéx{blueTeam}, Ç±·üx{redTeam}, ½´ÓÍx{greenTeam}", region, $"{PhotonNetwork.GetPing()}");
+        roomListing.showRoomDetailWindow($"å†›æƒ…x{blueTeam}, æ½œä¼x{redTeam}, é…±æ²¹x{greenTeam}", region, $"{PhotonNetwork.GetPing()}");
     }
 
     public void hideDetailedRoomWindow()

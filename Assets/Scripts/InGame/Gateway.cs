@@ -18,10 +18,11 @@ public class Gateway : Server, IOnEventCallback
     private CardListing CardListing;
     private BurnCardListing BurnCardListing;
 
-    private int subTurnCount;
+    public int subTurnCount { private set; get; }
     public Player hostPlayerInturn;
 
     public int currentCardId { private set; get; }
+    public int testPlayerCardId { private set; get; }
 
     protected override void Awake()
     {
@@ -65,7 +66,7 @@ public class Gateway : Server, IOnEventCallback
         {
             case DrawCardEventCode:
                 Player drawCardPlayer = (Player)playerSequences[$"{(int)data[0]}"];
-                if(data.Length < 3) GameUI.showRealtimeMessage($"Íæ¼Ò[{drawCardPlayer.NickName}]³éÁËÒ»ÕÅÅÆ");
+                if(data.Length < 3) GameUI.showRealtimeMessage($"çŽ©å®¶[{drawCardPlayer.NickName}]æŠ½äº†ä¸€å¼ ç‰Œ");
                 GameUI.showAssignCardAnimation(drawCardPlayer);
                 if (!PhotonNetwork.IsMasterClient) return;
                 int requestedCards = (int)data[1];
@@ -80,7 +81,7 @@ public class Gateway : Server, IOnEventCallback
                 turnCount = (int)data[0] % playersCount;//Host player in this round
                 subTurnCount = turnCount;//Host player == subTurnPlayer because Host player hasn't decided a card to pass
                 hostPlayerInturn = (Player)playerSequences[$"{turnCount}"];
-                GameUI.showRealtimeMessage($"Íæ¼Ò[{hostPlayerInturn.NickName}]µÄ»ØºÏ");
+                GameUI.showRealtimeMessage($"çŽ©å®¶[{hostPlayerInturn.NickName}]çš„å›žåˆ");
                 GameUI.setCurrentPlayerTurn(hostPlayerInturn.NickName);
                 if (hostPlayerInturn.IsLocal) GameUI.showEndTurnButton();
                 else GameUI.hideEndTurnButton();
@@ -94,11 +95,12 @@ public class Gateway : Server, IOnEventCallback
                     GameAnimation.setOpenCard(false);//Closed Status [Default]
                     GameAnimation.setOriginPosForPassingCard(GameUI.GetVectorPosByPlayerSeq((int)data[0]));//Origin Pos
                     GameAnimation.setPassingCardBck(Deck[newCardId].type, Deck[newCardId].image, false);
+                    if(currentCardId!=-1) SpellCardsListing.AddMsgCard(currentCardId, GameAnimation.isCardRevealed() ? Deck[currentCardId].image : CardAssets.backgroundCards[Deck[currentCardId].type]);
                     currentCardId = newCardId;
                 }
                 Player PlayerToReceive = GetPlayerBySeq(subTurnCount);
                 GameUI.showPassingCard(PlayerToReceive);
-                GameUI.showRealtimeMessage($"µÈ´ýÍæ¼Ò[{PlayerToReceive.NickName}]µÄ»Ø¸´");
+                GameUI.showRealtimeMessage($"ç­‰å¾…çŽ©å®¶[{PlayerToReceive.NickName}]çš„å›žå¤");
                 if (PlayerToReceive.IsLocal) GameUI.showCommandManipulation();
                 else GameUI.hideCommandManipulation();
                 break;
@@ -143,7 +145,7 @@ public class Gateway : Server, IOnEventCallback
                 {
                     AddCardToTrash(daction, cardId);
                     GameUI.manipulateDeckUI(GetTrashCardCountByType(daction), daction);
-                    GameUI.showRealtimeMessage($"{GetPlayerBySeq(tplayerSeq).NickName}¶ªÆúÁËÒ»ÕÅÅÆµ½{(daction == 1 ? "Ã÷" : "°µ")}ÆúÅÆ¶Ñ");
+                    GameUI.showRealtimeMessage($"{GetPlayerBySeq(tplayerSeq).NickName}ä¸¢å¼ƒäº†ä¸€å¼ ç‰Œåˆ°{(daction == 1 ? "æ˜Ž" : "æš—")}å¼ƒç‰Œå †");
                 }
                 break;
 
@@ -156,6 +158,11 @@ public class Gateway : Server, IOnEventCallback
     {
         ++turnCount;
         StartGameServer();
+    }
+
+    public void setTestCardId(int id)
+    {
+        testPlayerCardId = id;
     }
 
     //Encapsulation. Made it easier to fetch internal player position info

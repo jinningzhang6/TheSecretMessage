@@ -21,7 +21,7 @@ public class UI : MonoBehaviourPunCallbacks
     public GameObject burnCardWindow, incomingManipulation, endTurnButton, useSpellButton, cancelSpellButton;
     /*Tag: Text/Img UI */
     public Text turnPrompt, playerTurnUI, cardsLeftUI, reminderText;
-    public GameObject openCard;
+    public GameObject openCard, spellCardContent;
     
     /*Tag: Animation Control */
     public Vector3 passingCardPosition, assigningCardPosition;
@@ -30,7 +30,7 @@ public class UI : MonoBehaviourPunCallbacks
 
     private Gateway Gateway;
 
-    protected string[] spellCardsName = new string[] { "Ëø¶¨", "µ÷»¢ÀëÉ½", "ÔöÔ®", "×ªÒÆ", "²©ŞÄ", "½Ø»ñ", "ÊÔÌ½", "ÉÕ»Ù" };
+    protected string[] spellCardsName = new string[] { "é”å®š", "è°ƒè™ç¦»å±±", "å¢æ´", "è½¬ç§»", "åšå¼ˆ", "æˆªè·", "è¯•æ¢", "çƒ§æ¯" };
 
     private void Awake()
     {
@@ -42,6 +42,7 @@ public class UI : MonoBehaviourPunCallbacks
         endTurnButton.SetActive(false);
         cancelSpellButton.SetActive(false);
         reminderText.gameObject.SetActive(false);
+        spellCardContent.SetActive(false);
     }
 
     void Start() {
@@ -80,6 +81,8 @@ public class UI : MonoBehaviourPunCallbacks
             Destroy(playerUIs[4].gameObject); Destroy(passingCardUIs[4].gameObject); 
             Destroy(playerReceiveCardUIs[4].gameObject); Destroy(debuff_indicatorUIs[4].gameObject);
         }
+
+
         for(int i=0,j=0; i<playerUIs.Length;i++)//i index: 8  original Tabs index// j index: newArray's index
         {
             if (!set.Contains(i))
@@ -91,17 +94,32 @@ public class UI : MonoBehaviourPunCallbacks
                 j++;
             }
         }
+        Player[] players = PhotonNetwork.PlayerList;
+        Hashtable table = PhotonNetwork.CurrentRoom.CustomProperties == null ? new Hashtable() : PhotonNetwork.CurrentRoom.CustomProperties;
+        int[] identities= (int[])table["identities"];
+        for (int i = 0; i < players.Length; i ++)
+        {
+            char c = (char)identities[i];
+            PlayerInfo playerInfo = newPlayerUIS[i].GetComponent<PlayerInfo>();
+            playerInfo.setPlayerIdentity(c,players[i]);
+            if (players[i] == PhotonNetwork.LocalPlayer)
+            {
+                playerInfo.displayIdentity();
+
+            }
+        }
     }
 
+    //player.customproperties
     //Update user's message amount. Ex: red: 1, blue: 2, black: 0
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
-        if (changedProps.ContainsKey("playerStartDeck"))
+        if (changedProps.ContainsKey("playerStartDeck"))//æ‰‹ç‰Œ new int[] {cardid2, carid56, cardid23}
         {
             object[] cards = (object[])changedProps["playerStartDeck"];
-            newPlayerUIS[(int)Gateway.playerPositions[targetPlayer]].GetComponentsInChildren<Text>()[0].text = $"{cards.Length}";
+            newPlayerUIS[Gateway.GetPositionByPlayer(targetPlayer)].GetComponentsInChildren<Text>()[0].text = $"{cards.Length}";
         }
-        if (changedProps.ContainsKey("playerBlueMessage"))
+        if (changedProps.ContainsKey("playerBlueMessage"))//è“è‰²æƒ…æŠ¥
         {
             int msgs = (int)changedProps["playerBlueMessage"];
             newPlayerUIS[(int)Gateway.playerPositions[targetPlayer]].GetComponentsInChildren<Text>()[1].text = $"{msgs}";
@@ -212,11 +230,33 @@ public class UI : MonoBehaviourPunCallbacks
     public void resetUserDebuffUI() { for (int i = 0; i < newDebuffIndicatorUIs.Length; i++) newDebuffIndicatorUIs[i].SetActive(false); }
     //*** Set Player Debuff UI End  **//
 
+    public void showTestSpellCardAnimation(int fromPlayer, int cardId, int toPlayer)//wrong position! same position for everyone! 0706
+    {
+        Gateway.GetGameAnimation().startAnimatingTestCard(GetVectorPosByPlayerSeq(fromPlayer), GetVectorPosByPlayerSeq(toPlayer));
+        Gateway.setTestCardId(cardId);
+        if (!Gateway.GetPlayerBySeq(toPlayer).IsLocal) return;
+        spellCardContent.GetComponent<Image>().sprite = Server.Deck[cardId].image;
+        spellCardContent.SetActive(true);
+    }
+
+    public void showTestSpellCardContent(int fromPlayer)
+    {
+        if (!Gateway.GetPlayerBySeq(fromPlayer).IsLocal) return;//Object reference not set to an instance of an object
+        Gateway.GetGameAnimation().showTestCardContent(Gateway.testPlayerCardId);
+    }
+
+    public void hideTestSpellCardAnimation()
+    {
+        Gateway.GetGameAnimation().stopAnimatingTestCard();
+        Gateway.setTestCardId(-1);
+        spellCardContent.SetActive(false);
+    }
+
     public void showRealtimeMessage(string text) { StartCoroutine(executeCodeAfterSecondsForTurnMessage(2, text)); }
 
     public void showPlayerReceivedMessage(Player player, int cardId) { 
         StartCoroutine(executeCodeAfterSecondsForReceiveCard(3, cardId));
-        StartCoroutine(executeCodeAfterSecondsForTurnMessage(3, $"Íæ¼Ò[{player.NickName}]½ÓÊÕÁËÇé±¨!"));
+        StartCoroutine(executeCodeAfterSecondsForTurnMessage(3, $"ç©å®¶[{player.NickName}]æ¥æ”¶äº†æƒ…æŠ¥!"));
     }
 
     public void showAssignCardAnimation(Player player) { StartCoroutine(executeCodeAfterSecondsForAssigningCard(2, player)); }
@@ -249,7 +289,9 @@ public class UI : MonoBehaviourPunCallbacks
 
     public Vector3 GetVectorPosByPlayerSeq(int seq)
     {
-        return newPassingCardUIs[seq].transform.position;
+        Player player = Gateway.GetPlayerBySeq(seq);
+        int position = Gateway.GetPositionByPlayer(player);
+        return newPassingCardUIs[position].transform.position;
     }
 
     public void hidePassingCard() { shouldAnimatePassingCard = false; }
@@ -304,7 +346,7 @@ public class UI : MonoBehaviourPunCallbacks
 
     IEnumerator executeCodeAfterSecondsForRemindingText(int secs, int type)
     {
-        reminderText.text = $"µ±Ç°¼¼ÄÜ [{spellCardsName[type]}] ÎŞ·¨Ê¹ÓÃ";
+        reminderText.text = $"å½“å‰æŠ€èƒ½ [{spellCardsName[type]}] æ— æ³•ä½¿ç”¨";
         reminderText.gameObject.SetActive(true);
         yield return new WaitForSeconds(secs);
         reminderText.gameObject.SetActive(false);

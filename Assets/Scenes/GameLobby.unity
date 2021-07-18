@@ -2193,6 +2193,7 @@ GameObject:
   m_Component:
   - component: {fileID: 320878725}
   - component: {fileID: 320878726}
+  - component: {fileID: 320878727}
   m_Layer: 5
   m_Name: Jun2
   m_TagString: Untagged
@@ -2267,8 +2268,33 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 320878727}
+        m_TargetAssemblyTypeName: Identity, Assembly-CSharp
+        m_MethodName: OnClick_IdentityToggle
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 0
+--- !u!114 &320878727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 320878724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7460b6ddcb2334183ef61ab252ee7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team: 66
 --- !u!1 &333211336
 GameObject:
   m_ObjectHideFlags: 0
@@ -2869,6 +2895,7 @@ MonoBehaviour:
   playerName: {fileID: 1083369465}
   roomNameObject: {fileID: 1295193417}
   hostName: {fileID: 1867825415}
+  identities: {fileID: 497915845}
 --- !u!114 &403000091
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3015,6 +3042,7 @@ GameObject:
   m_Component:
   - component: {fileID: 418189124}
   - component: {fileID: 418189125}
+  - component: {fileID: 418189126}
   m_Layer: 5
   m_Name: Qian1
   m_TagString: Untagged
@@ -3089,8 +3117,33 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 418189126}
+        m_TargetAssemblyTypeName: Identity, Assembly-CSharp
+        m_MethodName: OnClick_IdentityToggle
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 1
+--- !u!114 &418189126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 418189123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7460b6ddcb2334183ef61ab252ee7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team: 82
 --- !u!1 &426743859
 GameObject:
   m_ObjectHideFlags: 0
@@ -3255,6 +3308,7 @@ GameObject:
   m_Component:
   - component: {fileID: 450490304}
   - component: {fileID: 450490305}
+  - component: {fileID: 450490306}
   m_Layer: 5
   m_Name: Jiang2
   m_TagString: Untagged
@@ -3329,8 +3383,33 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 450490306}
+        m_TargetAssemblyTypeName: Identity, Assembly-CSharp
+        m_MethodName: OnClick_IdentityToggle
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 0
+--- !u!114 &450490306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 450490303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7460b6ddcb2334183ef61ab252ee7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team: 71
 --- !u!1 &460847007
 GameObject:
   m_ObjectHideFlags: 0
@@ -3628,6 +3707,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 497915844}
+  - component: {fileID: 497915845}
   m_Layer: 0
   m_Name: TeamConfiguration
   m_TagString: Untagged
@@ -3662,6 +3742,18 @@ RectTransform:
   m_AnchoredPosition: {x: 228.87181, y: 132.80132}
   m_SizeDelta: {x: 533.9512, y: 277.7133}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &497915845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 497915843}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d502a49dadab7c542a9d34171a49a06b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &516817689
 GameObject:
   m_ObjectHideFlags: 0
@@ -6224,6 +6316,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1003804430}
   - component: {fileID: 1003804431}
+  - component: {fileID: 1003804432}
   m_Layer: 5
   m_Name: Jun3
   m_TagString: Untagged
@@ -6298,8 +6391,33 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1003804432}
+        m_TargetAssemblyTypeName: Identity, Assembly-CSharp
+        m_MethodName: OnClick_IdentityToggle
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 0
+--- !u!114 &1003804432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1003804429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7460b6ddcb2334183ef61ab252ee7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team: 66
 --- !u!1 &1003908267
 GameObject:
   m_ObjectHideFlags: 0
@@ -6468,6 +6586,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1091461663}
   - component: {fileID: 1091461664}
+  - component: {fileID: 1091461665}
   m_Layer: 5
   m_Name: Qian2
   m_TagString: Untagged
@@ -6542,8 +6661,33 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1091461665}
+        m_TargetAssemblyTypeName: Identity, Assembly-CSharp
+        m_MethodName: OnClick_IdentityToggle
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 0
+--- !u!114 &1091461665
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1091461662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7460b6ddcb2334183ef61ab252ee7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team: 82
 --- !u!1 &1097686218
 GameObject:
   m_ObjectHideFlags: 0
@@ -7197,6 +7341,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1178032317}
   - component: {fileID: 1178032318}
+  - component: {fileID: 1178032319}
   m_Layer: 5
   m_Name: Jiang1
   m_TagString: Untagged
@@ -7271,8 +7416,33 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1178032319}
+        m_TargetAssemblyTypeName: Identity, Assembly-CSharp
+        m_MethodName: OnClick_IdentityToggle
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 1
+--- !u!114 &1178032319
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1178032316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7460b6ddcb2334183ef61ab252ee7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team: 71
 --- !u!1 &1185458581
 GameObject:
   m_ObjectHideFlags: 0
@@ -11952,6 +12122,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1992571460}
   - component: {fileID: 1992571461}
+  - component: {fileID: 1992571462}
   m_Layer: 5
   m_Name: Qian3
   m_TagString: Untagged
@@ -12026,8 +12197,33 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1992571462}
+        m_TargetAssemblyTypeName: Identity, Assembly-CSharp
+        m_MethodName: OnClick_IdentityToggle
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 0
+--- !u!114 &1992571462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1992571459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7460b6ddcb2334183ef61ab252ee7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team: 82
 --- !u!1 &2004589102
 GameObject:
   m_ObjectHideFlags: 0
@@ -12315,6 +12511,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2064719363}
   - component: {fileID: 2064719364}
+  - component: {fileID: 2064719365}
   m_Layer: 5
   m_Name: Jun1
   m_TagString: Untagged
@@ -12389,8 +12586,33 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2064719365}
+        m_TargetAssemblyTypeName: Identity, Assembly-CSharp
+        m_MethodName: OnClick_IdentityToggle
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 1
+--- !u!114 &2064719365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2064719362}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7460b6ddcb2334183ef61ab252ee7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team: 66
 --- !u!1 &2087508412
 GameObject:
   m_ObjectHideFlags: 0
