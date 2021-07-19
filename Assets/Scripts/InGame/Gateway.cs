@@ -51,6 +51,7 @@ public class Gateway : Server, IOnEventCallback
     private void StartGameClient()
     {
         assignPlayerPosition(GameUI.GetNewPlayerUIs());
+        GameUI.assignIdentities();
         turnStartDistributeCards();
         if (PhotonNetwork.IsMasterClient) StartGameServer();
     }
