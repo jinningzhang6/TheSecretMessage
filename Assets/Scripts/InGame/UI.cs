@@ -94,15 +94,20 @@ public class UI : MonoBehaviourPunCallbacks
                 j++;
             }
         }
+    }
+
+    public void assignIdentities()
+    {
         Player[] players = PhotonNetwork.PlayerList;
         Hashtable table = PhotonNetwork.CurrentRoom.CustomProperties == null ? new Hashtable() : PhotonNetwork.CurrentRoom.CustomProperties;
-        int[] identities= (int[])table["identities"];
-        for (int i = 0; i < players.Length; i ++)
+
+        int[] identities = (int[])table["identities"];
+        for (int i = 0; i < players.Length; i++)
         {
             char c = (char)identities[i];
-            PlayerInfo playerInfo = newPlayerUIS[i].GetComponent<PlayerInfo>();
-            playerInfo.setPlayerIdentity(c,players[i]);
-            if (players[i] == PhotonNetwork.LocalPlayer)
+            PlayerInfo playerInfo = newPlayerUIS[(int)Gateway.playerPositions[players[i]]].GetComponent<PlayerInfo>();
+            playerInfo.setPlayerIdentity(c, players[i]);
+            if (players[i].IsLocal && (int)Gateway.playerPositions[players[i]] == 0)
             {
                 playerInfo.displayIdentity();
 
@@ -114,7 +119,7 @@ public class UI : MonoBehaviourPunCallbacks
     //Update user's message amount. Ex: red: 1, blue: 2, black: 0
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
-        if (changedProps.ContainsKey("playerStartDeck"))//手牌 new int[] {cardid2, carid56, cardid23}
+        if (changedProps.ContainsKey("playerStartDeck"))
         {
             object[] cards = (object[])changedProps["playerStartDeck"];
             newPlayerUIS[Gateway.GetPositionByPlayer(targetPlayer)].GetComponentsInChildren<Text>()[0].text = $"{cards.Length}";

@@ -77,11 +77,6 @@ public class GameLobby : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinOrCreateRoom($"{roomName} {nickname} {PhotonNetwork.CloudRegion} {PlayerPrefs.GetInt("blueTeam")} {PlayerPrefs.GetInt("redTeam")} {PlayerPrefs.GetInt("greenTeam")}", roomOps, this.Lobby, null);
     }
 
-    public override void OnCreatedRoom()
-    {
-        setIdentitiesProperty();
-    }
-
     public override void OnJoinedRoom()
     {
         Debug.Log($"Joined this room. Am I in lobby ? {PhotonNetwork.InLobby}, Am I in room? {PhotonNetwork.InRoom}. there are {PhotonNetwork.CountOfRooms} rooms");
@@ -177,6 +172,7 @@ public class GameLobby : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             Debug.Log($"Now Starting the game, players: ");
+            setIdentitiesProperty();
             List<int> list = shufflePositions();
             ExitGames.Client.Photon.Hashtable table = PhotonNetwork.CurrentRoom.CustomProperties==null ? new ExitGames.Client.Photon.Hashtable() : PhotonNetwork.CurrentRoom.CustomProperties;
             table.Add("sequence", Random.Range(0,100));
