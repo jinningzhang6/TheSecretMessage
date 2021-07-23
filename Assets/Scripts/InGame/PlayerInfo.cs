@@ -32,7 +32,7 @@ public class PlayerInfo : MonoBehaviour
                 break;
             case 'G':
                 team = "酱";
-                teamColor = Color.green;
+                teamColor = new Color(0,0.6f,0);
                 break;
         }
         thisPlayer = p;
