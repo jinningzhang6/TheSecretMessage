@@ -105,7 +105,6 @@ public class UI : MonoBehaviourPunCallbacks
             if (players[i] == PhotonNetwork.LocalPlayer)
             {
                 playerInfo.displayIdentity();
-
             }
         }
     }
