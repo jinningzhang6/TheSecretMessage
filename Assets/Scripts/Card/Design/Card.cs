@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 //Real CardInfo
 public class Card
@@ -18,11 +15,11 @@ public class Card
     public Card(int id, int blue, int red, int black, Sprite image, int type, int spellType)
     {
         this.id = id;
-        this.blue = blue;
+        this.blue = blue;//1 yes, 0 no
         this.red = red;
         this.black = black;
         this.image = image;
-        this.type = type;
-        this.spellType = spellType;
+        this.type = type;//密电0 还是 直达 1 , 文本 2
+        this.spellType = spellType;// 锁定0, 调虎离山1, ...
     }
 }

@@ -20,8 +20,8 @@ public class UI : MonoBehaviourPunCallbacks
     /*Tag: Button UI */
     public GameObject burnCardWindow, incomingManipulation, endTurnButton, useSpellButton, cancelSpellButton;
     /*Tag: Text/Img UI */
-    public Text turnPrompt, playerTurnUI, cardsLeftUI, reminderText;
-    public GameObject openCard, spellCardContent;
+    public Text playerTurnUI, cardsLeftUI, reminderText;
+    public GameObject spellCardContent;
     
     /*Tag: Animation Control */
     public Vector3 passingCardPosition, assigningCardPosition;
@@ -110,7 +110,6 @@ public class UI : MonoBehaviourPunCallbacks
             if (players[i].IsLocal && (int)Gateway.playerPositions[players[i]] == 0)
             {
                 playerInfo.displayIdentity();
-
             }
         }
     }
@@ -257,22 +256,19 @@ public class UI : MonoBehaviourPunCallbacks
         spellCardContent.SetActive(false);
     }
 
-    public void showRealtimeMessage(string text) { StartCoroutine(executeCodeAfterSecondsForTurnMessage(2, text)); }
+    public void showRealtimeMessage(string text) { StartCoroutine(realtimeMessage(6, text, -1)); }
 
     public void showPlayerReceivedMessage(Player player, int cardId) { 
-        StartCoroutine(executeCodeAfterSecondsForReceiveCard(3, cardId));
-        StartCoroutine(executeCodeAfterSecondsForTurnMessage(3, $"玩家[{player.NickName}]接收了情报!"));
+        StartCoroutine(realtimeMessage(6, $"玩家[{player.NickName}]接收了情报!", cardId));
     }
 
-    public void showAssignCardAnimation(Player player) { StartCoroutine(executeCodeAfterSecondsForAssigningCard(2, player)); }
+    public void showAssignCardAnimation(Player player) { StartCoroutine(executeCodeAfterSecondsForAssigningCard(3, player)); }
 
     public void showReminderText(int secs, int type) { StartCoroutine(executeCodeAfterSecondsForRemindingText(secs,type)); }
 
     public void showCommandManipulation() { incomingManipulation.SetActive(true); }
 
     public void hideCommandManipulation() { incomingManipulation.SetActive(false); }
-
-    public void hidePreviousTurnCard() { openCard.SetActive(false); }
 
     public void showEndTurnButton() { endTurnButton.SetActive(true); }
 
@@ -313,30 +309,12 @@ public class UI : MonoBehaviourPunCallbacks
 
     public bool isCurrentPassingCardOpen() { return isCardOpen; }
 
-    IEnumerator executeCodeAfterSecondsForTurnMessage(int secs, string text)
+    IEnumerator realtimeMessage(int secs, string text, int id)
     {
-        turnPrompt.GetComponent<Text>().color = new Color(1, 1, 1, 1);
-        turnPrompt.GetComponent<Text>().text = text;
+        if (id != -1) Gateway.GetRealtimeMsg().AddMessage(Server.Deck[id].image, text, "详情");
+        else Gateway.GetRealtimeMsg().AddMessage(null, text, "");
         yield return new WaitForSeconds(secs);
-        for (float i = 1; i >= 0; i -= Time.deltaTime)
-        {
-            turnPrompt.GetComponent<Text>().color = new Color(1, 1, 1, i);
-            yield return null;
-        }
-    }
-
-    IEnumerator executeCodeAfterSecondsForReceiveCard(int secs,int receivedCard)
-    {
-        openCard.SetActive(true);
-        openCard.GetComponentsInChildren<Image>()[1].sprite = Server.Deck[receivedCard].image;
-        openCard.GetComponentsInChildren<Image>()[1].color = new Color(1, 1, 1, 1);
-        yield return new WaitForSeconds(secs);
-        for (float i = 1; i >= 0; i -= Time.deltaTime)
-        {
-            openCard.GetComponentsInChildren<Image>()[1].color = new Color(1, 1, 1, i);
-            yield return null;
-        }
-        openCard.SetActive(false);
+        Gateway.GetRealtimeMsg().DestroyMessage();
     }
 
     IEnumerator executeCodeAfterSecondsForAssigningCard(int secs, Player player)
@@ -351,7 +329,7 @@ public class UI : MonoBehaviourPunCallbacks
 
     IEnumerator executeCodeAfterSecondsForRemindingText(int secs, int type)
     {
-        reminderText.text = $"当前技能 [{spellCardsName[type]}] 无法使用";
+        reminderText.text = $"当前卡牌 [{spellCardsName[type]}] 无法使用";
         reminderText.gameObject.SetActive(true);
         yield return new WaitForSeconds(secs);
         reminderText.gameObject.SetActive(false);
