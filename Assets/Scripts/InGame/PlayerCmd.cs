@@ -118,7 +118,7 @@ public class PlayerCmd : MonoBehaviour
     public void onDropHandZone(BaseEventData t_event)//Drag card from table to own card section
     {
         PointerEventData eventData = (PointerEventData)t_event;
-        CardItem cardItem = eventData.selectedObject.GetComponent<CardItem>();
+        CardItem cardItem = eventData.selectedObject.GetComponent<CardItem>();//NullreferenceException
         if (cardItem == null || Gateway.GetCardListing().checkHandContainsCard(cardItem.cardId)) return;
         int playerSequel = Gateway.GetPlayerSequenceByName($"{PhotonNetwork.LocalPlayer.NickName}");
         Gateway.raiseCertainEvent(Gateway.DropCardCode(), new object[] { cardItem.cardId, 4, playerSequel, playerSequel });//4 indicates grabbing cards from table

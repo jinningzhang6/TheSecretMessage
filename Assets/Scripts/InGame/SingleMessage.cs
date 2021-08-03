@@ -3,14 +3,17 @@ using UnityEngine.UI;
 
 public class SingleMessage : MonoBehaviour
 {
-    public string mainMessage { get; private set; }
-    public string subMessage { get; private set; }
-    public Image image { get; private set; }
+    [SerializeField]
+    private Image image;
+    [SerializeField]
+    private Text mainMessage;
+    [SerializeField]
+    private Text subMessage;
 
-    public void SetCardInfo(string mainMessage, string subMessage, Image image)
+    public void SetCardInfo(string mainMessage, string subMessage, Sprite image)
     {
-        this.image = image;
-        this.mainMessage = mainMessage;
-        this.subMessage = subMessage;
+        if(image!=null) this.image.sprite = image;
+        this.mainMessage.text = mainMessage;
+        this.subMessage.text = subMessage;
     }
 }

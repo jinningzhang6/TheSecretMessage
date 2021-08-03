@@ -9,7 +9,6 @@ public class SpellCmd : MonoBehaviourPunCallbacks
 {
     private Gateway Gateway;
     
-    public Text gameRealTimeInfo;
     public GameObject game_object;
 
     void Start()
@@ -40,35 +39,35 @@ public class SpellCmd : MonoBehaviourPunCallbacks
     private void SpellLock(int castPlayer, int toPlayer)//Num[0] SuoDing
     {
         Player _player = Gateway.GetPlayerBySeq(toPlayer);
-        StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, toPlayer, "锁定")));
+        StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, toPlayer, "锁定"), 0));
         setPlayerDebuff(_player, "locked", true, "锁");
     }
 
     private void SpellAway(int castPlayer, int toPlayer)//Num[1] DiaoHuLiShan
     {
         Player _player = Gateway.GetPlayerBySeq(toPlayer);
-        StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, toPlayer, "调虎离山")));
+        StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, toPlayer, "调虎离山"), 1));
         setPlayerDebuff(_player, "awayed", true, "调");
     }
 
-    private void SpellHelp(int castPlayer) { StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, -1, "增援"))); }//Num[2] ZengYuan
+    private void SpellHelp(int castPlayer) { StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, -1, "增援"), 2)); }//Num[2] ZengYuan
 
     private void SpellRedirect(int castPlayer, int toPlayer)//Num[3] ZhuanYi
     {
         Player _player = Gateway.GetPlayerBySeq(toPlayer);
         setPlayerDebuff(_player, "redirected", true, "转");
         if (PhotonNetwork.IsMasterClient) Gateway.raiseCertainEvent(Gateway.SendCardCode(), new object[] { castPlayer, toPlayer, Gateway.currentCardId });
-        StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, toPlayer, "转移")));
+        StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, toPlayer, "转移"), 3));
     }
 
     private void SpellGamble(int castPlayer, int toPlayer)//Num[4] BoYi
     {
-        StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, toPlayer, "博弈")));
+        StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, toPlayer, "博弈"), 4));
     }
 
     private void SpellIntercept(int castPlayer)//Num[5] JieHuo
     {
-        StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, -1, "截获")));
+        StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, -1, "截获"), 5));
     }
 
     private void SpellTest(int castPlayer, int cardId, int toPlayer)//Num[6] ShiTan
@@ -76,55 +75,55 @@ public class SpellCmd : MonoBehaviourPunCallbacks
         if(cardId == -1)//close spell card window
         {
             Gateway.GetGameUI().hideTestSpellCardAnimation();
-            StartCoroutine(showPromptTextForSeconds("试探结束!"));
+            StartCoroutine(showPromptTextForSeconds("试探结束!",6));
         }
         else if(cardId == -2)//peek spell card content
         {
             Gateway.GetGameUI().showTestSpellCardContent(castPlayer);
-            StartCoroutine(showPromptTextForSeconds($"{Gateway.GetPlayerBySeq(castPlayer).NickName}翻看了此试探!"));
+            StartCoroutine(showPromptTextForSeconds($"{Gateway.GetPlayerBySeq(castPlayer).NickName}翻看了此试探!", 6));
         }
         else//show spell card content
         {
             Gateway.GetGameUI().showTestSpellCardAnimation(castPlayer, cardId, toPlayer);
-            StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, toPlayer, "试探")));
+            StartCoroutine(showPromptTextForSeconds(MessageFormatter(castPlayer, toPlayer, "试探"),6));
         }
     }
 
     private void SpellBurnSpellCard(int fromPlayer)
     {
-        StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, -1, "烧毁")));
+        StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, -1, "烧毁"),7));
     }
 
     private void SpellBurnPlayerCard(int fromPlayer, int cardId, int toPlayer)//Num[7] ShaoHui
     {
         Gateway.deleteMessage(Gateway.GetPlayerBySeq(toPlayer), cardId);
-        StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, toPlayer, "烧毁")));
+        StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, toPlayer, "烧毁"),7));
     }
 
     private void SpellChange(int fromPlayer, int cardId)//Num[8] DiaoBao
     {
         Gateway.raiseCertainEvent(Gateway.SendCardCode(), new object[] { fromPlayer, Gateway.subTurnCount, cardId });
-        StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, -1, "调包")));
+        StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, -1, "调包"),8));
     }
 
     private void SpellView(int fromPlayer)
     {
-        StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, -1, "破译")));
+        StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, -1, "破译"),9));
     }
 
     private void SpellGambleAll(int fromPlayer)
     {
-        StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, -2, "真伪莫辩")));
+        StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, -2, "真伪莫辩"),10));
     }
 
     private void SpellInvalidate(int fromPlayer)
     {
-        StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, -1, "识破")));
+        StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, -1, "识破"),12));
     }
 
     private void SpellTradeOff(int fromPlayer)
     {
-        StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, -1, "权衡")));
+        StartCoroutine(showPromptTextForSeconds(MessageFormatter(fromPlayer, -1, "权衡"),13));
     }
 
     private void setPlayerDebuff(Player player,string debuffName,bool debuff,string keyword)
@@ -145,15 +144,10 @@ public class SpellCmd : MonoBehaviourPunCallbacks
         return $"玩家[{Gateway.GetPlayerBySeq(fromPlayer).NickName}] 对 {Gateway.GetPlayerBySeq(toPlayer).NickName} 使用了 '{SpellName}'";
     }
 
-    IEnumerator showPromptTextForSeconds(string text)
+    IEnumerator showPromptTextForSeconds(string text, int spellType)
     {
-        gameRealTimeInfo.color = new Color(1, 1, 1, 1);
-        gameRealTimeInfo.text = text;
-        yield return new WaitForSeconds(2);
-        for (float i = 1; i >= 0; i -= Time.deltaTime)
-        {
-            gameRealTimeInfo.color = new Color(1, 1, 1, i);
-            yield return null;
-        }
+        Gateway.GetRealtimeMsg().AddMessage(text, spellType);
+        yield return new WaitForSeconds(6);
+        Gateway.GetRealtimeMsg().DestroyMessage();
     }
 }

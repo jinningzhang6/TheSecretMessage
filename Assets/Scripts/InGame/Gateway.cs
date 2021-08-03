@@ -12,6 +12,7 @@ public class Gateway : Server, IOnEventCallback
     private Animation GameAnimation;
     private PlayerCmd PlayerCmd;
     private SpellCmd SpellCmd;
+    private RealtimeMsg RealtimeMsg;
 
     /*Tag: Scripts UI */
     private SpellCardsOnTable SpellCardsListing;
@@ -45,6 +46,7 @@ public class Gateway : Server, IOnEventCallback
         PlayerCmd = MainScene.GetComponent<PlayerCmd>();
         CardListing = MainScene.GetComponent<CardListing>();
         BurnCardListing = MainScene.GetComponent<BurnCardListing>();
+        RealtimeMsg = MainScene.GetComponent<RealtimeMsg>();
         GameUI.configureUITableByPlayerCount(playersCount);
     }
 
@@ -76,7 +78,6 @@ public class Gateway : Server, IOnEventCallback
                 break;
 
             case TurnStartEventCode:
-                GameUI.hidePreviousTurnCard();
                 GameUI.resetUserDebuffUI();
                 currentCardId = -1;
                 turnCount = (int)data[0] % playersCount;//Host player in this round
@@ -184,6 +185,8 @@ public class Gateway : Server, IOnEventCallback
     public BurnCardListing GetBurnCardListing() { return BurnCardListing; }
 
     public PlayerCmd GetPlayerCmd() { return PlayerCmd; }
+
+    public RealtimeMsg GetRealtimeMsg() { return RealtimeMsg; }
 
     public Animation GetGameAnimation() { return GameAnimation; }
 
