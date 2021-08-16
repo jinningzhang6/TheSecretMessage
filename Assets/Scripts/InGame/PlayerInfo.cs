@@ -5,17 +5,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
+using Photon.Realtime;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
-public class PlayerInfo : MonoBehaviour
+
+public class PlayerInfo : MonoBehaviourPunCallbacks
 {
     public Image identityColor;
     public Text identityText;
+    public Image charIcon;
 
     private char identity;
     private string team;
     private Color teamColor;
     private Player thisPlayer;
-
+    private int character;
 
 
     public void setPlayerIdentity(char c,Player p)
@@ -63,5 +68,12 @@ public class PlayerInfo : MonoBehaviour
     public Player getPlayer()
     {
         return this.thisPlayer;
+    }
+
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
+    {
+        if (targetPlayer != thisPlayer ||!changedProps.ContainsKey("Character")) return;
+        character = (int)changedProps["Character"];
+        charIcon.sprite = Character.characterCards[character];
     }
 }

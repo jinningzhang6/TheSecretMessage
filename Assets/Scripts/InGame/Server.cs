@@ -312,4 +312,27 @@ public class Server : MonoBehaviourPunCallbacks
     {
         PhotonNetwork.RemoveCallbackTarget(this);
     }
+
+    protected void districuteCharacters()
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        int[] charactersArray = new int[25];
+        for (int i = 0; i < 25; i++)
+        {
+            charactersArray[i] = i;
+        }
+        charactersArray = Shuffle.ShuffleList(charactersArray);
+        Player[] players= PhotonNetwork.PlayerList;
+        for(int i = 0; i < players.Length; i++)
+        {
+            int[] singlePlayerAvaliableCharacters = new int[3];
+            for(int j = 0; j < 3; j++)
+            {
+                singlePlayerAvaliableCharacters[j] = charactersArray[i * 3 + j];
+            }
+            Hashtable playerTable = getPlayerHashTable(players[i]);
+            playerTable.Add("avaliableCharacters", singlePlayerAvaliableCharacters);
+            players[i].SetCustomProperties(playerTable);
+        }
+    }
 }

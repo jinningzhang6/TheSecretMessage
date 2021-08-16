@@ -55,6 +55,7 @@ public class Gateway : Server, IOnEventCallback
         assignPlayerPosition(GameUI.GetNewPlayerUIs());
         GameUI.assignIdentities();
         turnStartDistributeCards();
+        districuteCharacters();
         if (PhotonNetwork.IsMasterClient) StartGameServer();
     }
 
@@ -199,5 +200,7 @@ public class Gateway : Server, IOnEventCallback
     public byte ReceiveCardCode() { return SuccessReceiveEventCode; }
     public byte DropCardCode() { return DropCardEventCode; }
     public byte OpenCardCode() { return OpenCardEventCode; }
+
+    
 
 }
