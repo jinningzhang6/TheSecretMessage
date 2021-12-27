@@ -137,7 +137,7 @@ public class SpellCmd : MonoBehaviourPunCallbacks
         player.SetCustomProperties(table);
     }
 
-    private string MessageFormatter(int fromPlayer, int toPlayer, string SpellName)
+    private string MessageFormatter(int fromPlayer, int toPlayer, string SpellName)//大喇叭
     {
         if (toPlayer == -1) return $"玩家[{Gateway.GetPlayerBySeq(fromPlayer).NickName}] 使用了 '{SpellName}'";
         else if(toPlayer == -2) return $"玩家[{Gateway.GetPlayerBySeq(fromPlayer).NickName}] 对所有人 使用了 '{SpellName}'";
