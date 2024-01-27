@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Photon.Realtime;
 using System.Collections.Generic;
+using ExitGames.Client.Photon;
 
 public class GameLobby : MonoBehaviourPunCallbacks
 {
@@ -39,6 +40,7 @@ public class GameLobby : MonoBehaviourPunCallbacks
         playerName.text = nickname;
         playerIcon.sprite = playerIcons[iconSequence];
         instantiateWindow();
+        Debug.Log($"GameLobby: try connecting now");
         PhotonNetwork.AutomaticallySyncScene = true;
         PhotonNetwork.ConnectUsingSettings();
         PhotonNetwork.ConnectToRegion("usw");
@@ -87,9 +89,9 @@ public class GameLobby : MonoBehaviourPunCallbacks
         //room custom properties set
     }
 
-    private void setIdentitiesProperty()
+    private void SetPlayerIdentities()
     {
-        ExitGames.Client.Photon.Hashtable table = PhotonNetwork.CurrentRoom.CustomProperties == null ? new ExitGames.Client.Photon.Hashtable() : PhotonNetwork.CurrentRoom.CustomProperties;
+        Hashtable table = PhotonNetwork.CurrentRoom.CustomProperties;
         table.Add("identities",  identities.getShuffledIdentities());
         PhotonNetwork.CurrentRoom.SetCustomProperties(table);
     }
@@ -172,17 +174,66 @@ public class GameLobby : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             Debug.Log($"Now Starting the game, players: ");
-            setIdentitiesProperty();
-            List<int> list = shufflePositions();
-            ExitGames.Client.Photon.Hashtable table = PhotonNetwork.CurrentRoom.CustomProperties==null ? new ExitGames.Client.Photon.Hashtable() : PhotonNetwork.CurrentRoom.CustomProperties;
-            table.Add("sequence", Random.Range(0,100));
-            for(var i = 0; i < list.Count; i++)
-            {
-                table.Add($"{i+(int)table["sequence"]}", PhotonNetwork.CurrentRoom.Players[list[i]]);// list -> LocalPlayer, ·¿Ö÷ ,µÚ¶þÎ»Íæ¼Ò
-            }
-            PhotonNetwork.CurrentRoom.SetCustomProperties(table);
+            SetPlayerIdentities();
+            SetPlayerPositions();
+            SetServerDeck();
+
+            // Load GameScene
+            PhotonNetwork.AutomaticallySyncScene = true;
             PhotonNetwork.LoadLevel(2);
         }
+    }
+
+    // <summary>
+    // Randomized Deck for players to draw
+    // <summary/>
+    private void SetServerDeck()
+    {
+        var serverDeck = new SystemDeck().getDeck();
+        var currentCardToDraw = serverDeck.Length - 1;
+
+        SetRoomProperty(GameState.Deck.ToString(), serverDeck);
+        SetRoomProperty(GameState.CurrentCardToDraw.ToString(), currentCardToDraw);
+        SetRoomProperty(GameState.DeckCount.ToString(), currentCardToDraw + 1);
+    }
+
+    private void SetPlayerPositions()
+    {
+        List<int> list = shufflePositions();
+        Hashtable table = PhotonNetwork.CurrentRoom.CustomProperties;
+
+        table.Add("sequence", Random.Range(0, 100));
+        for (var i = 0; i < list.Count; i++)
+        {
+            table.Add($"{i + (int)table["sequence"]}", PhotonNetwork.CurrentRoom.Players[list[i]]);
+        }
+
+        PhotonNetwork.CurrentRoom.SetCustomProperties(table);
+    }
+
+    private void SetRoomProperty(string key, object content)
+    {
+        Hashtable table = PhotonNetwork.CurrentRoom.CustomProperties;
+
+        if (table.ContainsKey(key))
+        {
+            table[key] = content;
+        }
+        else
+        {
+            table.Add(key, content);
+        }
+
+        PhotonNetwork.CurrentRoom.SetCustomProperties(table);
+    }
+
+    private void SetMasterClientProperty(string key, object content)
+    {
+        Hashtable table = PhotonNetwork.MasterClient.CustomProperties;
+
+        table.Add(key, content);
+
+        PhotonNetwork.MasterClient.SetCustomProperties(table);
     }
 
     //list<int> 2,1,3
@@ -195,6 +246,7 @@ public class GameLobby : MonoBehaviourPunCallbacks
         {
             list.Add(i);
         }
+
         //List: 1, 2, 3
         var last = count - 1;
         for (var i = 0; i < last; ++i)//Randomize List of Players

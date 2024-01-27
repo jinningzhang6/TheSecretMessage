@@ -1,8 +1,4 @@
-using Photon.Pun;
 using Photon.Realtime;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,8 +11,6 @@ public class PlayerInfo : MonoBehaviour
     private string team;
     private Color teamColor;
     private Player thisPlayer;
-
-
 
     public void setPlayerIdentity(char c,Player p)
     {

@@ -10,7 +10,7 @@ public class RealtimeMsg : MonoBehaviour
 
     private List<SingleMessage> allMessages;
     private List<string> randomMessages;
-    // Start is called before the first frame update
+
     void Start()
     {
         allMessages = new List<SingleMessage>();
@@ -58,33 +58,34 @@ public class RealtimeMsg : MonoBehaviour
     {
         switch (spellType)
         {
-            case 0:
+            case (int)SpellType.Lock:
                 return "被锁定的玩家此回合必须接收传输情报";
-            case 1:
+            case (int)SpellType.Away:
                 return "被调虎离山的玩家此回合不能接收传输情报";
-            case 2:
+            case (int)SpellType.Help:
                 return "抽取[黑情报数量+1]的卡牌";
-            case 3:
+            case (int)SpellType.Redirect:
                 return "被转移的玩家必须接收此情报";
-            case 4:
+            case (int)SpellType.Gamble:
                 return "从牌库抽取一张牌作为自己的情报";
-            case 5:
+            case (int)SpellType.Intercept:
                 return "等待此玩家选择接收情报";
-            case 6:
+            case (int)SpellType.Test:
                 return "试探玩家身份底细";
-            case 7:
+            case (int)SpellType.Burn:
                 return "一张已有情报被烧毁";
-            case 8:
+            case (int)SpellType.Swap:
                 return "传输中情报被变更";
-            case 9:
+            case (int)SpellType.Decrypt:
                 return "宣言此情报信息 并翻开. 如果正确,可抽牌+公开";
-            case 10:
+            case (int)SpellType.GambleAll:
                 return "所有玩家逆时针 从牌库抽取一张牌 作为自己情报";
-            case 12:
+            case (int)SpellType.Cancel:
                 return "被识破的功能牌 效果无效";
-            case 13:
+            case (int)SpellType.Trade:
                 return "丢弃所有卡牌 抽取相等数量卡牌";
         }
+
         return "";
     }
 

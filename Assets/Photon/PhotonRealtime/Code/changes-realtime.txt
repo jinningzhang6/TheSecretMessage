@@ -3,6 +3,128 @@ Photon Realtime C# Client - Changelog
 Exit Games GmbH - www.photonengine.com - forum.photonengine.com
 
 
+
+Version 4.1.7.4 (13. December 2023 - rev7284)
+    Added: Matchmaking Ticket support. Tickets can be written server side (in a plugin or some backend) to define some parameters for the client. For example, a ticket can contain a list of party members who should join the same room or a room name to join or other parameters. More to be added to the online docs soon.
+    Fixed: Potential InvalidOperationException in RegionHandler if pinging failed to get any results.
+
+Version 4.1.7.3 (07. December 2023 - rev7252)
+    Changed: Best Region selection. From a shortlist of similar regions, we now pick a code alphabetically (improving determinism). In some locations, clients will get very similar results to various regions.
+    Added: Private RegionHandler.pingSimilarityFactor to calculate the max ping value for "similar results".
+
+Version 4.1.7.2 (20. September 2023 - rev7218)
+	Added: MaxPlayer support for more than 255 players. With a recent server version, it is now possible to define larger limits without setting the room's capability to infinite (0).
+	Changed: To work around an issue while running a WebGL-project in Editor, Realtime will use http instead of https to ping servers. For unknown reasons, the https ping in Editor (and only there) is delayed considerable in some cases, ruining the ping results).
+
+Version 4.1.7.1 (06. September 2023 - rev7148)
+    No notable changes.
+
+Version 4.1.7.0 (18. August 2023 - rev7111)
+    Added: Class SystemConnectionSummary, which wraps up network-related conditions on the client when it gets created. It relies on Unity's callbacks and requires a ConnectionHandler to be present in the scene (as implementation of a MonoBehaviour getting the callbacks). Check the reference doc for details on how to put it to use.
+    Added: LoadBalancingClient.SystemConnectionSummary, created for DisconnectCause.ExceptionOnConnect, DisconnectCause.Exception, DisconnectCause.ServerTimeout and DisconnectCause.ClientTimeout.
+    Added: Error logging to each place that creates a SystemConnectionSummary (in LoadBalancingClient).
+    Changed: Order of a few switch-cases in LBC.OnStatusChanged() for organizational reasons (the cases which create a SystemConnectionSummary are closer together this way).
+    Changed: LBC.DisconnectedCause is reset before calling PhotonPeer.Connect(). This should be set before the connect and not only if Connect() returns true.
+    Added: PhotonRealtime.asmdef (and meta file) to Unity SDK. This should be the same for all of our SDKs (PUN, Quantum, Voice).
+
+Version 4.1.6.26 (09. August 2023 - rev7077)
+    Changed: Name Server default port for WS is now 80, WSS is 443.
+    Changed: client.State = ClientState.Joined is set in GameEnteredOnGameServer() if room-events are suppressed. Otherwise it is now set by event Join. This change aligns the state change with the callback calls.
+    Changed: The SummaryToCache will not include a best region, if none of the regions was pinged successfully.
+    Added: RegionHandler.BestRegionSummaryPingLimit to ping all regions if the current best region is worse than this limit. Default: 90ms.
+    Changed: Demo Particle, GameLogic-class to check the Server Type instead of the client's State, when it entered a room on the Game Server.
+    Note: This is affected by the changes we did to set the State from joining to joined! In best case, you would use the callback OnJoinedRoom() which is independent.
+
+Version 4.1.6.25 (05. June 2023 - rev6925)
+    No notable changes.
+
+Version 4.1.6.24 (15. May 2023 - rev6894)
+    Fixed: Potential NullReferenceException in PingMono.Dispose().
+
+Version 4.1.6.23 (15. March 2023 - rev6743)
+    Fixed: Replaced Null-conditional operator for MonoBehaviours and GameObjects. This caused issues with the usage of RegionHandler.emptyMonoBehavior.
+
+Version 4.1.6.22  (21. December 2022 - rev6637)
+    Fixed: A casting issue in RoomInfo (and Room) when reading properties.
+
+Version 4.1.6.21  (14. December 2022 - rev6623)
+    Changed: Clients never send room or player properties to the Master Server.
+    Changed: The values MaxPlayers and PlayerCount for Rooms (RoomInfo and Room class) are now  integer in the client API. Between client and server, byte is still used. You can still only set 0-255 players until further note. This prepares a later change.
+    Changed: Event Leave now makes sure the target Player's HasRejoined value is set.
+    Changed: RegionHandler so it can be used by multiple connections at the same time.
+
+Version 4.1.6.20  (23. September 2022 - rev6568)
+    No notable changes.
+
+Version 4.1.6.19 (12. October 2022 - rev6519)
+    No notable changes.
+
+Version 4.1.6.18f2 (23. September 2022 - rev6505)
+    Fixed: RegionHandler compatibility when not running in-Unity. MonoBehaviourEmpty is only used conditionally.
+
+Version 4.1.6.18 (20. September 2022 - rev6501)
+    Added: RegionHandler.Abort() which enables you to stop region pinging (e.g. when the app goes to background or lost connection). This means the ping result callback is not being called.
+    Changed: Unity will always use MonoBehaviourEmpty.Update() to do the callback (set via PingMinimumOfRegions()). This makes sure it is called on the Main Thread.
+    Changed: Where MonoBehaviourEmpty.SelfDestroy() is being called (in Abort or when the "finished"-callback was called).
+    Changed: The MonoBehaviourEmpty is always created in Unity runtimes.
+    Removed: Surplus variable "overtime" in RegionPingCoroutine and RegionPingThreaded.
+
+Version 4.1.6.17 (02. August 2022 - rev6472)
+    Added: DisconnectCause.ApplicationQuit. Can be used when your app disconnects on application quit: lbc.Disconnect(DisconnectCause.ApplicationQuit).
+    Note: The ConnectionHandler will use this to differentiate a regular disconnect from one that is triggered by Unity / app-quit.
+
+Version 4.1.6.16 (22. June 2022)
+    Fixed: Formatting issue in debug logs for WebGL exports.
+    Changed: Best Region selection. A weighted ping value is used now. Out of the 5 attempts, the worst is discarded (usually the first) and the best is counted in twice (it is the fastest). In WebGL, HTTP is used to ping servers and when a request didn't finish, the next attempt will be delayed a bit.
+    Changed: HTTP Ping class for Best Region selection in WebGL changed from Unity's WWW class to UnityWebRequest.
+
+Version 4.1.6.15 (10. June 2022)
+    Changed: Sharding / Clustering support. Clients will no longer connect to a random cluster by default. To do so, make sure to add "/*" to the region code, if your game supports sharding / multiple clusters. This is only done in very high CCU cases.
+
+Version 4.1.6.14 (26. April 2022)
+    Added: Warning log if SocketWebTcp could not be found at runtime in Unity WebGL exports.
+
+Version 4.1.6.11 (22. November 2021)
+    Changed: For Unity, PhotonEditorUtils.IsPrefab to use the correct prefab stage utility for Unity 2021.2 and up.
+    Added: CustomAuthenticationType.Epic to authenticate via Epic Online Services (EOS).
+    Added: CustomAuthenticationType.FacebookGaming to authenticate via Facebook Gaming services.
+
+Version 4.1.6.8 (12. October 2021)
+    Changed: CustomTypesUnity. The default Quaternion is now Quaternion.identity (which is a legit Quaterion, as opposed to the previously used new Quaternion). Added const values for each type's byte-size.
+    Added: Checks to avoid creating a player for actorNumber 0.
+    Added: CheckIfOpCanBeSent to OpJoinOrCreateRoom and OpRejoinRoom. Avoids changing state and repeating operation.
+    Removed: Surplus checks if the LoadBalancingPeer is non-null. This is done in CheckIfOpCanBeSent(), too.
+
+Version 4.1.6.7 (27. September 2021)
+    Replaced: Pointer_stringify with UTF8ToString in WebSocket.jslib. It was removed from newer Emscripten versions and is no longer working when exporting from Unity 2021.2. betas. Replaced with UTF8ToString. Tested in 2018.4.x and a current beta.
+    Fixed: Usage of websocketType for console.
+
+Version 4.1.6.6 (17. September 2021)
+    Removed: Usage of class EncryptorNative. This needs to be replaced by EncryptorNativeSource where the Native Socket Plugin should be used.
+    Changed: The Native Socket Plugin can also be used for UDP on Xbox (not in Editor).
+    Removed: CheckConnectSetupXboxOne() as platform requirements were turned into recommendations.
+    Changed: For Xbox, order of checked assemblies when getting Type SocketNativeSource. It's more likely to be in Assembly-CSharp.
+
+Version 4.1.6.5 (24. August 2021)
+    Updated: The default name server host to "ns.photonengine.io". When using WSS on this, it expects TLS1.2 (Win 7 and old Unity versions may not support this).
+    Fixed: Internally used OpJoinRoom() will now send custom room properties (all RoomOptions set) to the Master Server, too. This allows the Master Server to immediately find the room, even if property filtering is used. This was affecting matchmaking with OpJoinOrCreateRoom.
+
+Version 4.1.6.4 (26. July 2021)
+    Internal: Added PhotonEditorTools.HasFusion value and added AppSettings.AppIdFusion as well as ClientAppType.Fusion.
+    Added: ConnectionHandler.DisconnectAfterKeepAlive to let the fallback thread call Disconnect after the KeepAliveInBackground time. Default: false.
+    Changed: ConnectionHandler timer implementation to use a Stopwatch, which is a little more clear about what happens. PUN does not expose this value, so you need to set it in code (change the default).
+    Added: Hashtable specific extension methods StripKeysWithNullValues and StripToStringKeys which allocates less.
+
+Version 4.1.6.3 (06. July 2021)
+    Added: Handling of ErrorCode Invalid Operation (-2) for Authenticate requests. This becomes a DisconnectCause = OperationNotAllowedInCurrentState.
+
+Version 4.1.6.2 (17. June 2021)
+    Changed: The enumeration CustomAuthenticationType was changed to fix naming inconsistencies. Use PlayStation4 and PlayStation5 respectively. Old variants are available as obsolete.
+
+Version 4.1.6.0 (19. May 2021)
+    Changed: As tokenless auth is no longer allowed when using a Name Server, there is now an error log and authentication will not be done from the client. This is not happening in the normal workflow but a precaution to detect issues, should something unpredicted happen.
+    Changed: SupportLogger formatting of the timestamp to include the minutes (if available). Hours will not be logged (so in the logs, there is a wrap around of log-timestamps after 60 min).
+
 Version 4.1.5.4 (13. April 2021)
     Changed: Connect-methods in the LoadBalancingClient now fail "early" when the peer is already connected. This prevents unintentional modifications of the state and auth token.
     Added: The LoadBalancingClient will now check if the token is available when the AuthMode 'AuthOnce' or 'AuthOnceWss' require it. If it's not available, the client will log an error and prevent the connection attempt. If this happens, the client is already in a bad state and won't connect anyways.

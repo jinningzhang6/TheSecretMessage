@@ -3,6 +3,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
+using Assets.Scripts.Models.Request;
 
 public class BurnCardListing : MonoBehaviourPunCallbacks
 {
@@ -33,8 +34,8 @@ public class BurnCardListing : MonoBehaviourPunCallbacks
         ResetBurnCardListing();
         BurnedPlayer = player;
         Hashtable table = getPlayerHashTable(player);
-        if (!table.ContainsKey("msgStack")) return;
-        object[] receivedMsgs = (object[])table["msgStack"];
+        if (!table.ContainsKey(PlayerProperty.MsgStack.ToString())) return;
+        object[] receivedMsgs = (object[])table[PlayerProperty.MsgStack.ToString()];
         
         foreach(object each in receivedMsgs)
         {
@@ -43,7 +44,7 @@ public class BurnCardListing : MonoBehaviourPunCallbacks
             int index = listing.FindIndex(x => x.cardId == id);
             if (index != -1) continue;
             CardItem newCard = Instantiate(_cardListing, content);
-            newCard.SetCardInfo(Server.Deck[id].id, Server.Deck[id].image, Server.Deck[id].type, Server.Deck[id].spellType);
+            newCard.SetCardInfo(Server.DeckDictionary[id].id, Server.DeckDictionary[id].image, Server.DeckDictionary[id].type, Server.DeckDictionary[id].spellType);
             listing.Add(newCard);
         }
     }
@@ -78,7 +79,18 @@ public class BurnCardListing : MonoBehaviourPunCallbacks
     public void burnCertainCard()
     {
         if (selectedBurnCard == null || BurnedPlayer == null) return;
-        Gateway.raiseCertainEvent(Gateway.SpellCardCode() , new object[] { Gateway.GetPlayerSequenceByName(PhotonNetwork.LocalPlayer.NickName), selectedBurnCard.cardId, Gateway.GetPlayerSequenceByName(BurnedPlayer.NickName), 7 });//7 burn card code
+
+        Gateway.RaiseEventWSingleContent((int)GameEvent.SpellCard, 
+            Utilities.Instance.SerializeContent(
+                new SpellRequest()
+                {
+                    FromPlayer = Gateway.GetPlayerSequenceByName(PhotonNetwork.LocalPlayer.NickName),
+                    CardId = selectedBurnCard.cardId, // TODO
+                    ToPlayer = Gateway.GetPlayerSequenceByName(BurnedPlayer.NickName),
+                    SpellType = (int)SpellType.Burn,
+                    CastOnCardId = selectedBurnCard.cardId,
+                }));
+
         selectedBurnCard = null;
     }
 

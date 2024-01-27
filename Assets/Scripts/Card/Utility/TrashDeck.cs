@@ -1,6 +1,8 @@
+using Assets.Scripts.Models.Request;
+using Assets.Scripts.Utility;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using Photon.Pun;
 
 public class TrashDeck : MonoBehaviourPunCallbacks, IDropHandler
 {
@@ -17,9 +19,21 @@ public class TrashDeck : MonoBehaviourPunCallbacks, IDropHandler
     public void OnDrop(PointerEventData eventData)
     {
         UI.hideAllReceivingCardSection();
-        CardItem cardItem = eventData.selectedObject.GetComponent<CardItem>();
-        int trashCardDeck = name == "NegDeck" ? 0 : 1;
-        Gateway.raiseCertainEvent( Gateway.DropCardCode(), new object[] { cardItem.cardId, trashCardDeck, Gateway.GetPlayerSequenceByName(PhotonNetwork.LocalPlayer.NickName) });
-        Gateway.GetCardListing().removeSelectedCardFromHand(cardItem.cardId);
+
+        var cardItem = eventData.selectedObject.GetComponent<CardItem>();
+        var trashCardDeck = name == Constants.HiddenDeck ? 
+            (int)DropCardAction.Hidden : (int)DropCardAction.Shown;
+
+        var request = new DropCardRequest
+        {
+            CardId = cardItem.cardId,
+            Action = trashCardDeck,
+            ToPlayer = Gateway.GetPlayerSequenceByName(PhotonNetwork.LocalPlayer.NickName),
+            FromPlayer = Gateway.GetPlayerSequenceByName(PhotonNetwork.LocalPlayer.NickName)
+        };
+
+        Gateway.RaiseEventWSingleContent(
+            (int)GameEvent.DropCard,
+            Utilities.Instance.SerializeContent(request));
     }
 }

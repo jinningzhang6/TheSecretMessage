@@ -1,3 +1,4 @@
+using Assets.Scripts.Models.Request;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -42,7 +43,9 @@ public class AimingBot : MonoBehaviourPunCallbacks
         msgDropZone.gameObject.SetActive(false);
     }
 
-    // Red Circle Animation -> Aim
+    /// <summary>
+    /// 展示所有 Red Circle Animation -> Aim
+    /// </summary> 
     void Update()
     {
         if (AimIndicatorUI != null)
@@ -58,27 +61,64 @@ public class AimingBot : MonoBehaviourPunCallbacks
     }
 
     //Drop Zone Start *** //
+
+    /// <summary>
+    /// 把自己的手牌给予其他玩家
+    /// </summary>
+    /// <param name="t_event"></param>
     public void OnDropToHandCards(BaseEventData t_event)
     {
         UI.hideAllReceivingCardSection();
-        PointerEventData eventData = (PointerEventData)t_event;
-        CardItem cardItem = eventData.selectedObject.GetComponent<CardItem>();
-        int toPlayerSequel = Gateway.GetPlayerSequenceByName(playerName);
-        int fromPlayerSequel = Gateway.GetPlayerSequenceByName(PhotonNetwork.LocalPlayer.NickName);
-        Gateway.raiseCertainEvent(Gateway.DropCardCode(), new object[] { cardItem.cardId, 3, toPlayerSequel, fromPlayerSequel });//3 indicates giving cards to others
-        Gateway.GetCardListing().removeSelectedCardFromHand(cardItem.cardId);
+
+        var eventData = (PointerEventData)t_event;
+        var cardItem = eventData.selectedObject.GetComponent<CardItem>();
+        var toPlayer = Gateway.GetPlayerSequenceByName(playerName);
+        var fromPlayer = Gateway.GetPlayerSequenceByName(PhotonNetwork.LocalPlayer.NickName);
+
+        var request = new DropCardRequest
+        {
+            CardId = cardItem.cardId,
+            Action = (int)DropCardAction.GiveCard,
+            ToPlayer = toPlayer,
+            FromPlayer = fromPlayer
+        };
+
+        Gateway.RaiseEventWSingleContent(
+            (int)GameEvent.DropCard,
+            Utilities.Instance.SerializeContent(request));
     }
-    //Send Card Command
+
+    /// <summary>
+    /// 发送情报牌
+    /// </summary>
+    /// <param name="eventData"></param>
     public void OnDropToCardIndicator(PointerEventData eventData)
     {
         UI.hideAllReceivingCardSection();
-        int cardId = -1;
-        if (eventData.pointerDrag.TryGetComponent(out CardItem item)) cardId = eventData.selectedObject.GetComponent<CardItem>().cardId;
-        else cardId = Gateway.currentCardId;
+        var cardId = (int)GameState.NonePassingCard;
+
+        if (eventData.pointerDrag.TryGetComponent(out CardItem item))
+        {
+            cardId = eventData.selectedObject.GetComponent<CardItem>().cardId;
+        }
+        else
+        {
+            cardId = Gateway.currentCardId;
+        }
+
         CardListing.selectedCard = null;
         if (cardId == -1) return;
-        Gateway.raiseCertainEvent( Gateway.SendCardCode(), new object[] { Gateway.GetPlayerSequenceByName(PhotonNetwork.LocalPlayer.NickName), Gateway.GetPlayerSequenceByName(playerName), cardId });//sendcardEvent
-        Gateway.GetCardListing().removeSelectedCardFromHand(cardId);
+
+        Gateway.RaiseEventWSingleContent( 
+            (int)GameEvent.SendCard,
+            Utilities.Instance.SerializeContent(
+                new SendCardRequest()
+                {
+                    FromPlayer = Gateway.GetPlayerSequenceByName(PhotonNetwork.LocalPlayer.NickName),
+                    ToPlayer = Gateway.GetPlayerSequenceByName(playerName),
+                    CardId = cardId
+                }
+        ));
     }
 
     private void OnPointerIn(PointerEventData eventData)
@@ -96,7 +136,10 @@ public class AimingBot : MonoBehaviourPunCallbacks
     void clickOnCharIcon()
     {
         if (!GameUI.isPlayerUsingSpell || CardListing.selectedCard == null) return;
-        Gateway.GetPlayerCmd().SendSpellCardRequest(CardListing.selectedCard.cardId, CardListing.selectedCard.spellType,playerName);// playername-> target player
+
+        Gateway.GetPlayerCmd().SendSpellCardRequest(
+            CardListing.selectedCard.cardId, 
+            CardListing.selectedCard.spellType,playerName);// playername-> target player
         Gateway.GetPlayerCmd().StopUsingSpell();
     }
 
@@ -107,6 +150,9 @@ public class AimingBot : MonoBehaviourPunCallbacks
     }
     //Drop Zone End *** //
 
+    /// <summary>
+    /// Initialize Listeners
+    /// </summary>
     private void assignEventTriggers()
     {
         EventTrigger trigger = msgDropZone.GetComponent<EventTrigger>();
