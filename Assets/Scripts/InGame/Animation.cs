@@ -1,17 +1,19 @@
+using Assets.Scripts.Models;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Animation for moving cards on table
+/// </summary>
 public class Animation : MonoBehaviourPunCallbacks
 {
     public GameObject InGameObjects;
     public GameObject passingCardLive;
-    public GameObject assigningCardLive;
     public GameObject testSpellCardLive;
     public GameObject cardDeck;
 
     private UI GameUI;
-    private Vector3 startingDeckPos;
     private Vector3 testSpellDestinationPos;
     private bool shouldAnimateSpellPass;
     private bool alreadyOpenedCard;
@@ -20,10 +22,8 @@ public class Animation : MonoBehaviourPunCallbacks
     void Start()
     {
         GameUI = InGameObjects.GetComponent<UI>();
-        passingCardLive.GetComponent<Image>().sprite = CardAssets.backgroundCards[0];
-        testSpellCardLive.GetComponent<Image>().sprite = CardAssets.backgroundCards[2];
-        startingDeckPos = cardDeck.transform.position;
-        assigningCardLive.SetActive(false);
+        passingCardLive.GetComponent<Image>().sprite = Utilities.Instance.GetBackgroundSprites()[0];
+        testSpellCardLive.GetComponent<Image>().sprite = Utilities.Instance.GetBackgroundSprites()[2];
         alreadyOpenedCard = false;
         shouldAnimateSpellPass = false;
     }
@@ -40,16 +40,6 @@ public class Animation : MonoBehaviourPunCallbacks
         {
             passingCardLive.SetActive(false);
         }
-        if (GameUI.shouldAnimateAssigningCard)
-        {
-            assigningCardLive.SetActive(true);
-            assigningCardLive.transform.position = Vector3.Lerp(assigningCardLive.transform.position, GameUI.assigningCardPosition, 5 * Time.deltaTime);
-        }
-        else
-        {
-            assigningCardLive.SetActive(false);
-            assigningCardLive.transform.position = startingDeckPos;
-        }
         if (shouldAnimateSpellPass)
         {
             testSpellCardLive.SetActive(true);
@@ -63,13 +53,13 @@ public class Animation : MonoBehaviourPunCallbacks
 
     public void setPassingCardBck(int type, Sprite image, bool forceOpen)
     {
-        if (type == 2 || forceOpen || alreadyOpenedCard)
+        if (type == (int)MessageType.OpenContent || forceOpen || alreadyOpenedCard)
         {
             passingCardLive.GetComponent<Image>().sprite = image;
         }
         else
         {
-            passingCardLive.GetComponent<Image>().sprite = CardAssets.backgroundCards[type];
+            passingCardLive.GetComponent<Image>().sprite = Utilities.Instance.GetBackgroundSprites()[type];
         }
     }
 
@@ -87,13 +77,13 @@ public class Animation : MonoBehaviourPunCallbacks
     {
         testSpellCardLive.transform.position = originPosition;
         testSpellDestinationPos = destPosition;
-        testSpellCardLive.GetComponent<Image>().sprite = CardAssets.backgroundCards[2];
+        testSpellCardLive.GetComponent<Image>().sprite = Utilities.Instance.GetBackgroundSprites()[2];
         shouldAnimateSpellPass = true;
     }
 
     public void showTestCardContent(int cardId)
     {
-        testSpellCardLive.GetComponent<Image>().sprite = Server.Deck[cardId].image;
+        testSpellCardLive.GetComponent<Image>().sprite = Server.DeckDictionary[cardId].image;
     }
 
     public void stopAnimatingTestCard()

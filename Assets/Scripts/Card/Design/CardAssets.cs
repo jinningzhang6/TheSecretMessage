@@ -4,7 +4,7 @@ public class CardAssets
 {
 
     private Sprite[] spellCards;
-    public static Sprite[] backgroundCards;
+    private Sprite[] backgroundCards;
 
     public CardAssets()
     {
@@ -84,5 +84,10 @@ public class CardAssets
     public Sprite[] getCardAssets()
     {
         return spellCards;
+    }
+
+    public Sprite[] GetBackgrounds()
+    {
+        return backgroundCards;
     }
 }

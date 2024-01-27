@@ -1,7 +1,14 @@
+using Assets.Scripts.InGame;
+using Assets.Scripts.InGame.Handler;
+using Assets.Scripts.InGame.Handlers;
+using Assets.Scripts.InGame.SpellHandlers;
+using Assets.Scripts.Models.Request;
 using ExitGames.Client.Photon;
-using Photon.Pun;
 using Photon.Realtime;
+using System;
+using System.Collections;
 using UnityEngine;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class Gateway : Server, IOnEventCallback
 {
@@ -11,7 +18,7 @@ public class Gateway : Server, IOnEventCallback
     private UI GameUI;
     private Animation GameAnimation;
     private PlayerCmd PlayerCmd;
-    private SpellCmd SpellCmd;
+    
     private RealtimeMsg RealtimeMsg;
 
     /*Tag: Scripts UI */
@@ -19,9 +26,13 @@ public class Gateway : Server, IOnEventCallback
     private CardListing CardListing;
     private BurnCardListing BurnCardListing;
 
-    public int subTurnCount { private set; get; }
-    public Player hostPlayerInturn;
+    private DrawCardHandler DrawCardHandler;
+    private DropCardHandler DropCardHandler;
+    private SendCardHandler SendCardHandler;
+    private SpellHandler SpellHandler;
+    private StartTurnHandler StartTurnHandler;
 
+    public int subTurnCount { private set; get; }
     public int currentCardId { private set; get; }
     public int testPlayerCardId { private set; get; }
 
@@ -41,125 +52,142 @@ public class Gateway : Server, IOnEventCallback
     {
         GameUI = MainScene.GetComponent<UI>();
         GameAnimation = MainScene.GetComponent<Animation>();
-        SpellCmd = MainScene.GetComponent<SpellCmd>();
+        
         SpellCardsListing = MainScene.GetComponent<SpellCardsOnTable>();
         PlayerCmd = MainScene.GetComponent<PlayerCmd>();
         CardListing = MainScene.GetComponent<CardListing>();
         BurnCardListing = MainScene.GetComponent<BurnCardListing>();
         RealtimeMsg = MainScene.GetComponent<RealtimeMsg>();
         GameUI.configureUITableByPlayerCount(playersCount);
+
+        DrawCardHandler = new DrawCardHandler(this);
+        DropCardHandler = new DropCardHandler(this);
+        SendCardHandler = new SendCardHandler(this);
+        SpellHandler = new SpellHandler(this);
+        StartTurnHandler = new StartTurnHandler(this);
     }
 
     private void StartGameClient()
     {
-        assignPlayerPosition(GameUI.GetNewPlayerUIs());
+        AssignPlayerPosition(GameUI.GetNewPlayerUIs());
         GameUI.assignIdentities();
-        turnStartDistributeCards();
-        if (PhotonNetwork.IsMasterClient) StartGameServer();
+        GameUI.ResetUserDebuffUI();
+
+        if (Utilities.Instance.IsAllowedToChangeProperty())
+        {
+            StartGame();
+        }
     }
 
-    //Whole Game Logic
-    public void OnEvent(EventData photonEvent)//system triggers
+    // Game Logic => Auto Triggered
+    public void OnEvent(EventData photonEvent)
     {
-        byte eventCode = photonEvent.Code;
-        if (eventCode < 0 || eventCode > 8) return;
-        object[] data = (object[])photonEvent.CustomData;
-
-        switch (eventCode)
+        // EventCode should exist in GameEvent
+        if (!Enum.IsDefined(typeof(GameEvent), (int)photonEvent.Code))
         {
-            case DrawCardEventCode:
-                Player drawCardPlayer = (Player)playerSequences[$"{(int)data[0]}"];
-                if(data.Length < 3) GameUI.showRealtimeMessage($"玩家[{drawCardPlayer.NickName}]抽了一张牌");
-                GameUI.showAssignCardAnimation(drawCardPlayer);
-                if (!PhotonNetwork.IsMasterClient) return;
-                int requestedCards = (int)data[1];
-                if (data.Length < 3) DrawCardsForPlayer(drawCardPlayer, requestedCards);
-                else assignMessageForPlayer(drawCardPlayer, -1);
+            Debug.Log($"Gateway Event failed: eventCode {(int)photonEvent.Code} is not defined.");
+
+            return;
+        }
+
+        switch ((int)photonEvent.Code)
+        {
+            case (int)GameEvent.DrawCard:
+                DrawCardHandler.HandleRequest(photonEvent.CustomData);
                 break;
 
-            case TurnStartEventCode:
-                GameUI.resetUserDebuffUI();
-                currentCardId = -1;
-                turnCount = (int)data[0] % playersCount;//Host player in this round
-                subTurnCount = turnCount;//Host player == subTurnPlayer because Host player hasn't decided a card to pass
-                hostPlayerInturn = (Player)playerSequences[$"{turnCount}"];
-                GameUI.showRealtimeMessage($"玩家[{hostPlayerInturn.NickName}]的回合");
-                GameUI.setCurrentPlayerTurn(hostPlayerInturn.NickName);
-                if (hostPlayerInturn.IsLocal) GameUI.showEndTurnButton();
-                else GameUI.hideEndTurnButton();
+            case (int)GameEvent.TurnStart:
+                StartTurnHandler.HandleRequest(photonEvent.CustomData);
                 break;
 
-            case SendCardEventCode:
-                subTurnCount = (int)data[1] % playersCount;
-                int newCardId = (int)data[2];
-                if (newCardId != currentCardId)//Passing New Card
-                {
-                    GameAnimation.setOpenCard(false);//Closed Status [Default]
-                    GameAnimation.setOriginPosForPassingCard(GameUI.GetVectorPosByPlayerSeq((int)data[0]));//Origin Pos
-                    GameAnimation.setPassingCardBck(Deck[newCardId].type, Deck[newCardId].image, false);
-                    if(currentCardId!=-1) SpellCardsListing.AddMsgCard(currentCardId, GameAnimation.isCardRevealed() ? Deck[currentCardId].image : CardAssets.backgroundCards[Deck[currentCardId].type]);
-                    currentCardId = newCardId;
-                }
-                Player PlayerToReceive = GetPlayerBySeq(subTurnCount);
-                GameUI.showPassingCard(PlayerToReceive);
-                GameUI.showRealtimeMessage($"等待玩家[{PlayerToReceive.NickName}]的回复");
-                if (PlayerToReceive.IsLocal) GameUI.showCommandManipulation();
-                else GameUI.hideCommandManipulation();
+            // Bug1 [Resolved]: 1/21 Send people card won't remove his own cards in DB
+            // Bug3 [Resolved]: 1/21 Send swap card is automatically shown image instead of '密电'
+            case (int)GameEvent.SendCard:
+                SendCardHandler.HandleRequest(photonEvent.CustomData);
                 break;
 
-            case CardsLeftEventCode:
-                GameUI.setCurrentNumCards((int)data[0]);
+            // Bug2: sometimes spell card is not shown on table
+            // Bug4: intercept can only be casted when own turn
+            // Bug5: intercept didn't move position
+            case (int)GameEvent.SpellCard:
+                SpellHandler.HandleRequest(photonEvent.CustomData);
                 break;
 
-            case SuccessReceiveEventCode: //array[] array[0] which player send array[1] send card content / action?
-                int playerSequel = (int)data[0];
-                int receivedCard = (int)data[1];
-                Player player = (Player)playerSequences[$"{playerSequel}"];
-                GameUI.showPlayerReceivedMessage(player, receivedCard);
-                break;
+            case (int)GameEvent.ToEndTurn:
+                Utilities.Instance.SetGameState(GameState.CurrentPassingCardId.ToString(), (int)GameState.NonePassingCard);
 
-            case SpellCardEventCode:
-                SpellCmd.CheckSpell(data);
-                break;
-
-            case ToEndTurnEventCode:
-                currentCardId = -1;
                 GameUI.hidePassingCard();
-                SpellCardsListing.ResetSpellCardListing();
+                GameUI.ResetUserDebuffUI();
+
+                ResetUserProperty();
+                RemoveAllSpellEvents();
                 break;
 
-            case OpenCardEventCode:
-                int playerSeq = (int)data[0];
-                int action = (int)data[1];
-                PlayerCmd.processOpenCard(GetPlayerBySeq(playerSeq), action);
+            case (int)GameEvent.SuccessReceive:
+                {
+                    var data = (object[])photonEvent.CustomData;
+                    var playerSeq = (int)data[0];
+                    var receivedCard = (int)data[1];
+                    var player = (Player)playerSequences[$"{playerSeq}"];
+                    GameUI.showPlayerReceivedMessage(player, receivedCard);
+                    break;
+                }
+
+            case (int)GameEvent.DropCard:
+                DropCardHandler.HandleRequest(photonEvent.CustomData);
                 break;
 
-            case DropCardEventCode:
-                int cardId = (int)data[0];
-                int daction = (int)data[1];
-                int tplayerSeq = (int)data[2];
-                if (daction > 1 && data.Length > 3)
+            case (int)GameEvent.OpenCard:
                 {
-                    int fplayerSeq = (int)data[3];
-                    PlayerCmd.processGiveCard(GetPlayerBySeq(fplayerSeq), GetPlayerBySeq(tplayerSeq), cardId, daction);
+                    var data = (object[])photonEvent.CustomData;
+                    var fromPlayer = (int)data[0];
+                    var action = (int)data[1];
+                    PlayerCmd.processOpenCard(GetPlayerBySeq(fromPlayer), action);
+                    break;
                 }
-                else
+
+            case (int)GameEvent.DirectReceive:
                 {
-                    AddCardToTrash(daction, cardId);
-                    GameUI.manipulateDeckUI(GetTrashCardCountByType(daction), daction);
-                    GameUI.showRealtimeMessage($"{GetPlayerBySeq(tplayerSeq).NickName}丢弃了一张牌到{(daction == 1 ? "明" : "暗")}弃牌堆");
+                    var data = (object[])photonEvent.CustomData;
+                    // 11/09 Task: Test this feature
+                    var request = ObjectMapper.MapToObjectArray<DirectReceiveRequest>(data);
+                    var toPlayer = (Player)playerSequences[$"{request.ToPlayer}"];
+
+                    DirectReceiveToPlayer(toPlayer, -1);
+
+                    break;
                 }
-                break;
 
             default:
                 break;
         }
     }
 
-    public void startNextRound()
+    /// <summary>
+    /// 房间的Custom Property Change Listener
+    /// </summary>
+    /// <param name="changedProps"></param>
+    public override void OnRoomPropertiesUpdate(Hashtable changedProps)
+    {
+        if (changedProps.ContainsKey(GameState.CurrentPassingCardId.ToString()))
+        {
+            SetCurrentPassingCardId((int)changedProps[GameState.CurrentPassingCardId.ToString()]);
+        }
+        if (changedProps.ContainsKey(GameState.SubTurnCount.ToString()))
+        {
+            SetSubTurnSeq((int)changedProps[GameState.SubTurnCount.ToString()]);
+        }
+        if (changedProps.ContainsKey(GameState.TurnCount.ToString()))
+        {
+            SetTurnSeq((int)changedProps[GameState.TurnCount.ToString()]);
+            GetGameUI().setCurrentPlayerTurn(Utilities.Instance.GetPlayerNameBySeq(turnCount));
+        }
+    }
+
+    public void StartNextRound()
     {
         ++turnCount;
-        StartGameServer();
+        StartGame();
     }
 
     public void setTestCardId(int id)
@@ -190,14 +218,45 @@ public class Gateway : Server, IOnEventCallback
 
     public Animation GetGameAnimation() { return GameAnimation; }
 
-    public byte DrawCardCode() { return DrawCardEventCode; }
-    public byte TurnStartCode() { return TurnStartEventCode; }
-    public byte SendCardCode() { return SendCardEventCode; }
-    public byte SpellCardCode() { return SpellCardEventCode; }
-    public byte EndTurnCode() { return ToEndTurnEventCode; }
-    public byte CardsLeftCode() { return CardsLeftEventCode; }
-    public byte ReceiveCardCode() { return SuccessReceiveEventCode; }
-    public byte DropCardCode() { return DropCardEventCode; }
-    public byte OpenCardCode() { return OpenCardEventCode; }
+    public void BroadCastSpellEvent(int fromPlayer, int toPlayer, int spellType)
+    {
+        StartCoroutine(
+            showPromptTextForSeconds(
+                MessageFormatter(fromPlayer, toPlayer, spellType),
+                spellType));
+    }
 
+    #region Private Methods
+
+    IEnumerator showPromptTextForSeconds(string text, int spellType)
+    {
+        GetRealtimeMsg().AddMessage(text, spellType);
+        yield return new WaitForSeconds(6);
+        GetRealtimeMsg().DestroyMessage();
+    }
+
+    /// <summary>
+    /// 大喇叭广播
+    /// </summary>
+    /// <param name="fromPlayer"></param>
+    /// <param name="toPlayer"></param>
+    /// <param name="spellType"></param>
+    /// <returns>Broadcast Message</returns>
+    private string MessageFormatter(int fromPlayer, int toPlayer, int spellType)//大喇叭
+    {
+        var spellName = GetSpellNameByType(spellType);
+
+        if (toPlayer == -1) return $"玩家[{GetPlayerBySeq(fromPlayer).NickName}] 使用了 '{spellName}'";
+        else if (toPlayer == -2) return $"玩家[{GetPlayerBySeq(fromPlayer).NickName}] 对所有人 使用了 '{spellName}'";
+
+        return $"玩家[{GetPlayerBySeq(fromPlayer).NickName}] 对 {GetPlayerBySeq(toPlayer).NickName} 使用了 '{spellName}'";
+    }
+
+    private void SetCurrentPassingCardId(int cardId) => currentCardId = cardId;
+
+    private void SetSubTurnSeq(int seq) => subTurnCount = seq;
+
+    public void SetTurnSeq(int seq) => turnCount = seq;
+
+    #endregion
 }
